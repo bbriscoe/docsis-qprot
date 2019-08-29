@@ -143,7 +143,7 @@
       whether to redirect a whole flow rather than just certain packets.</t>
 
       <t>The algorithm is based on a principled approach to quantifying how
-      much each user contributes to congestion, which is used in economics to
+      much each flow contributes to congestion, which is used in economics to
       allocate responsibility for the cost of one party's behaviour on others
       (the economic externality). Another important feature of the approach is
       that the metric used for the queuing score is based on the same variable
@@ -151,7 +151,7 @@
       target="RFC8311"/>, <xref target="I-D.ietf-tsvwg-ecn-l4s-id"/>. This
       transparency is necessary to be able to objectively state (in <xref
       target="qp_nec_flow_behaviour"/>) how a flow can keep on the 'good' side
-      of the algorithm.</t>
+      of the algorithm.<!--ToDo: Explain that QProt is also used for non-ECN traffic, but ECN can be used for transparency.--></t>
 
       <section title="Document Roadmap">
         <t>The core of the document is the walk-through of the DOCSIS QProt
@@ -1029,7 +1029,7 @@ Arriving Packet's Flow
       target="qp_rationale_not_throughput"/> goes some way to mitigating this
       limitation, because the algorithm does not judge responsibility for
       queuing delay primarily on the combined rate of a set of flows grouped
-      under one flow ID. </t>
+      under one flow ID.</t>
     </section>
 
     <section anchor="l4sds_IANA" title="IANA Considerations">
