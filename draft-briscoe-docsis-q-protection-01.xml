@@ -992,10 +992,10 @@ Arriving Packet's Flow
         priority over the Classic queue, for instance using weighted round
         robin (WRR) with a high weight in favour of the Low Latency queue.</t>
 
-        <t>Therefore, typically, an packet ejected packet will experience
-        higher queuing delay than it would otherwise, and it could be
-        re-ordered within its flow (assuming QProt does not eject all packets
-        of an anomalous flow). The mild harm caused to the performance of the
+        <t>Therefore, typically, an ejected packet will experience higher
+        queuing delay than it would otherwise, and it could be re-ordered
+        within its flow (assuming QProt does not eject all packets of an
+        anomalous flow). The mild harm caused to the performance of the
         ejected packet's flow is deliberate. It gives senders a slight
         incentive to identify their packets correctly.</t>
 
@@ -1025,8 +1025,8 @@ Arriving Packet's Flow
       between the same layer-4 tunnel end-points.</t>
 
       <t>The use of a queuing score that excludes those aspects of flow rate
-      that do not contribute to queuing <xref
-      target="qp_rationale_not_throughput"/> goes some way to mitigating this
+      that do not contribute to queuing (<xref
+      target="qp_rationale_not_throughput"/>) goes some way to mitigating this
       limitation, because the algorithm does not judge responsibility for
       queuing delay primarily on the combined rate of a set of flows grouped
       under one flow ID.</t>
