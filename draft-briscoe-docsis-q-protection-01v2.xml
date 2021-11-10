@@ -46,7 +46,7 @@
 
     <author fullname="Bob Briscoe" initials="B." role="editor"
             surname="Briscoe">
-      <organization>CableLabs</organization>
+      <organization>Independent</organization>
 
       <address>
         <postal>
@@ -301,8 +301,9 @@
           will risk causing enough queueing to trigger queue protection.</t>
         </list></t>
 
-      <t>In DOCSIS, unresponsive flows are classified into the low latency
-      queue by a Non-Queue-Building (NQB) Diffserv codepoint <xref
+      <t>In DOCSIS, a sender can arrange for flows that are smooth but do not
+      respond to ECN marking to be classified into the low latency queue by
+      using a Non-Queue-Building (NQB) Diffserv codepoint <xref
       target="I-D.white-tsvwg-nqb"/>, or an operator can use various other
       additional local classifiers.<!--{ToDo: update to adopted -ietf- reference}--></t>
 
@@ -810,7 +811,7 @@ pick_bucket(uflw) {
 
         <t>Scalable congestion controllers such as those above maintain their
         congestion window in inverse proportion to the congestion level,
-        probNative, That leads to the important property that on average a
+        probNative. That leads to the important property that on average a
         scalable flow holds the product of its congestion window and the
         congestion level constant, no matter the capacity of the link or how
         many other flows it competes with. For instance, if the link capacity
@@ -1009,6 +1010,31 @@ Arriving Packet's Flow
         more often the delay of the low latency queue would exceed the
         threshold. Also more memory would be required to hold the extra flow
         state.</t>
+
+        <t>When a packet is redirected into the Classic queue, the
+        identifier(s) that originally caused it to be classified into the Low
+        Latency queue (e.g. ECN field and/or Diffserv codepoint) are not
+        normally altered (see Section 5.4.1 of <xref
+        target="I-D.ietf-tsvwg-ecn-l4s-id"/>). This is justified because
+        redirection of occasional packets can be due to unusually high
+        transient load at the bottleneck, not necessarily due to a badly
+        behaved flow. It would therefore be inappropriate to prevent each
+        redirected packet from being classified into a low latency queue
+        further downstream.</t>
+
+        <t>QProt could be extended to recognize that large numers of
+        redirected packets belong to the same flow. This might be detected
+        when the bucket expiry time t_exp exceeds a threshold (which would
+        also conveniently prevent overflow of the t_exp variable (see the
+        qprotect() function in <xref target="qp_qprotect"/>). Depending on
+        policy and implementation capabilities, QProt could then install a
+        classifier to redirect a whole flow into the Classic queue, with an
+        idle timeout to remove stale classifiers. In these 'persistent
+        offender' cases, QProt might also overwrite each redirected packet's
+        Diffserv Codepoint or clear its ECN field to Not-ECT, in order to
+        protect other potential L4S queues downstream. Further specification
+        of sanctions on whole flows is beyond the scope of the present
+        document.</t>
       </section>
     </section>
 
@@ -1062,7 +1088,8 @@ Arriving Packet's Flow
       <t>Thanks to Tom Henderson for his review of this document. The design
       of the QProt algorithm and the settings of the parameters benefited from
       discussion and critique from the participants of the cable industry
-      working group on Low Latency DOCSIS.</t>
+      working group on Low Latency DOCSIS. Cable Labs funded Bob Briscoe's
+      initial work on this document.</t>
     </section>
   </middle>
 
