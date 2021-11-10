@@ -75,7 +75,7 @@
       </address>
     </author>
 
-    <date month="" year="2019"/>
+    <date month="" year=""/>
 
     <area>Transport</area>
 
@@ -151,7 +151,7 @@
       target="RFC8311"/>, <xref target="I-D.ietf-tsvwg-ecn-l4s-id"/>. This
       transparency is necessary to be able to objectively state (in <xref
       target="qp_nec_flow_behaviour"/>) how a flow can keep on the 'good' side
-      of the algorithm.<!--ToDo: Explain that QProt is also used for non-ECN traffic, but ECN can be used for transparency.--></t>
+      of the algorithm.</t>
 
       <section title="Document Roadmap">
         <t>The core of the document is the walk-through of the DOCSIS QProt
@@ -247,8 +247,9 @@
         the AQM, probNative, that determines the ECN marking probability of
         the low latency queue. The actual DOCSIS algorithm is defined using
         integer arithmetic, but in the floating point arithmetic used in this
-        document, (0 &lt;= probNative &lt;= 1). The algorithm scales the size
-        of each arriving packet of a flow by the value of probNative.</t>
+        document, (0 &lt;= probNative &lt;= 1). The queueing score algorithm
+        accumulates size of each arriving packet of a flow scaled by the value
+        of probNative at the time.</t>
 
         <t>The algorithm so far would accumulate a number that would rise at
         the so-called congestion-rate of the flow, i.e. the rate at which the
@@ -304,8 +305,8 @@
       <t>In DOCSIS, a sender can arrange for flows that are smooth but do not
       respond to ECN marking to be classified into the low latency queue by
       using a Non-Queue-Building (NQB) Diffserv codepoint <xref
-      target="I-D.white-tsvwg-nqb"/>, or an operator can use various other
-      additional local classifiers.<!--{ToDo: update to adopted -ietf- reference}--></t>
+      target="I-D.ietf-tsvwg-nqb"/>, or an operator can use various other
+      additional local classifiers.</t>
 
       <t>Responsive low latency flows have to use L4S ECN <xref
       target="I-D.ietf-tsvwg-ecn-l4s-id"/> to get classified into the low
@@ -362,8 +363,8 @@
         <t>The operator input parameters that set the parameters in the first
         two blocks of pseudocode below are defined for cable modems (CMs) in
         <xref target="DOCSIS3.1-CM-OSS"/> and for CMTSs in <xref
-        target="DOCSIS3.1-CCAP-OSS"/>. The constants below that are derived
-        from them or hard-coded.</t>
+        target="DOCSIS3.1-CCAP-OSS"/>. Then, further constants are either
+        derived from the input parameters or hard-coded.</t>
 
         <figure>
           <artwork><![CDATA[// Input Parameters
@@ -412,7 +413,10 @@ MAXTH = MINTH + RANGE;           // Max marking threshold [ns]
 ]]></artwork>
         </figure>
 
-        <t>{ToDo: Paste in discussion of value of T_RES}</t>
+        <t>The resolution for expressing time, T_RES, needs to be chosen to
+        ensure that expiry times for buckets can represent times that are a
+        fraction (e.g. 1/10) of the expected packet interarrival time for the
+        system.</t>
 
         <t>The following definitions explain the purpose of important
         variables and functions.</t>
@@ -1024,7 +1028,7 @@ Arriving Packet's Flow
 
         <t>QProt could be extended to recognize that large numers of
         redirected packets belong to the same flow. This might be detected
-        when the bucket expiry time t_exp exceeds a threshold (which would
+        when the bucket expiry time t_exp exceeds a threshold, which could
         also conveniently prevent overflow of the t_exp variable (see the
         qprotect() function in <xref target="qp_qprotect"/>). Depending on
         policy and implementation capabilities, QProt could then install a
@@ -1177,7 +1181,7 @@ Arriving Packet's Flow
 
       <?rfc include="reference.I-D.white-tsvwg-lld" ?>
 
-      <?rfc include="reference.I-D.white-tsvwg-nqb" ?>
+      <?rfc include="reference.I-D.ietf-tsvwg-nqb" ?>
 
       <reference anchor="PragueLinux"
                  target="https://www.netdevconf.org/0x13/session.html?talk-tcp-prague-l4s">
