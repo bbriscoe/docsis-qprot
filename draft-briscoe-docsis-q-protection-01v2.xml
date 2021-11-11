@@ -117,23 +117,29 @@
       from the harm due to excess queuing that would otherwise be caused by
       such erroneous behaviour.</t>
 
-      <t>In normal scenarios without misclassified traffic, QProt does not
-      intervene at all in the classification or forwarding of packets.</t>
+      <t>In normal scenarios without misclassified traffic, QProt is not
+      expected to intervene at all in the classification or forwarding of
+      packets.</t>
 
       <t>An overview of how low latency support has been added to DOCSIS is
       given in <xref target="I-D.white-tsvwg-lld"/>. In each direction of a
       DOCSIS link (upstream and downstream), there are two queues: one for Low
       Latency and one for Classic traffic, in an arrangement similar to the
       IETF's Coupled DualQ AQM <xref
-      target="I-D.ietf-tsvwg-aqm-dualq-coupled"/>. The Classic queue is
-      intended for traffic such as traditional (Reno/Cubic) TCP that needs
-      about a round trip of buffering to fully utilize the link, and therefore
-      has no incentive to mismark itself as low latency. The QProt function is
-      located at the ingress to the Low Latency queue. Therefore, in the
-      upstream QProt is located on the cable modem (CM), and in the downstream
-      it is located on the cable CMTS (CM Termination System). If an arriving
-      packet triggers queue protection, the DOCSIS algorithm reclassifies the
-      packet from the Low Latency queue into the Classic queue.</t>
+      target="I-D.ietf-tsvwg-aqm-dualq-coupled"/>. The two queues enable a
+      transition from 'Classic' to 'Scalable' congestion control so that low
+      latency can become the norm for all applications, including ones seeking
+      both full throughput and low latency, not just low-rate applications
+      that have been more traditionally associated with a low latency service.
+      The Classic queue is only necessary for traffic such as traditional
+      (Reno/Cubic) TCP that needs about a round trip of buffering to fully
+      utilize the link, and therefore has no incentive to mismark itself as
+      low latency. The QProt function is located at the ingress to the Low
+      Latency queue. Therefore, in the upstream QProt is located on the cable
+      modem (CM), and in the downstream it is located on the cable CMTS (CM
+      Termination System). If an arriving packet triggers queue protection,
+      the DOCSIS algorithm reclassifies the packet from the Low Latency queue
+      into the Classic queue.</t>
 
       <t>If QProt is used in settings other than DOCSIS, it would be a simple
       matter to detect queue-building flows by using slightly different
