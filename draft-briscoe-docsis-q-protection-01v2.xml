@@ -87,12 +87,12 @@
 
     <abstract>
       <t>This informational document defines and explains the specification of
-      the queue protection algorithm used in DOCSIS 3.1. It is believed this
-      algorithm will be useful in scenarios other than DOCSIS. A shared low
-      latency queue relies on the non-queue-building behaviour of every
-      traffic flow using it. However, some flows might not take such care,
-      either accidentally or maliciously. If a queue is about to exceed a
-      threshold level of delay, the queue protection algorithm can rapidly
+      the queue protection algorithm used in DOCSIS since version 3.1. It is
+      believed this algorithm will be useful in scenarios other than DOCSIS. A
+      shared low latency queue relies on the non-queue-building behaviour of
+      every traffic flow using it. However, some flows might not take such
+      care, either accidentally or maliciously. If a queue is about to exceed
+      a threshold level of delay, the queue protection algorithm can rapidly
       detect the flow(s) most likely to be responsible. It can then prevent
       harm to other traffic in the low latency queue by ejecting selected
       packets (or all packets) of these flows.</t>
@@ -102,8 +102,8 @@
   <middle>
     <section anchor="qp_intro" title="Introduction">
       <t>This informational document defines and explains the specification of
-      the queue protection (QProt) algorithm used in DOCSIS 3.1 <xref
-      target="DOCSIS3.1"/>. It is believed this algorithm will be useful in
+      the queue protection (QProt) algorithm used in DOCSIS since version 3.1
+      <xref target="DOCSIS"/>. It is believed this algorithm will be useful in
       scenarios other than DOCSIS.</t>
 
       <t>Low queuing delay depends on hosts sending their data smoothly either
@@ -128,7 +128,7 @@
       IETF's Coupled DualQ AQM <xref
       target="I-D.ietf-tsvwg-aqm-dualq-coupled"/>. The two queues enable a
       transition from 'Classic' to 'Scalable' congestion control so that low
-      latency can become the norm for all applications, including ones seeking
+      latency can become the norm for any application, including ones seeking
       both full throughput and low latency, not just low-rate applications
       that have been more traditionally associated with a low latency service.
       The Classic queue is only necessary for traffic such as traditional
@@ -155,9 +155,9 @@
       that the metric used for the queuing score is based on the same variable
       that determines the level of ECN signalling seen by the sender <xref
       target="RFC8311"/>, <xref target="I-D.ietf-tsvwg-ecn-l4s-id"/>. This
-      transparency is necessary to be able to objectively state (in <xref
-      target="qp_nec_flow_behaviour"/>) how a flow can keep on the 'good' side
-      of the algorithm.</t>
+      ensures transparency, which is necessary to be able to objectively state
+      (in <xref target="qp_nec_flow_behaviour"/>) how a flow can keep on the
+      'good' side of the algorithm.</t>
 
       <section title="Document Roadmap">
         <t>The core of the document is the walk-through of the DOCSIS QProt
@@ -178,17 +178,10 @@
       </section>
 
       <section anchor="l4sds_Terminology" title="Terminology">
-        <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
-        "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
-        document are to be interpreted as described in <xref
-        target="RFC2119"/>. In this document, these words will appear with
-        that interpretation only when in ALL CAPS. Lower case uses of these
-        words are not to be interpreted as carrying RFC-2119 significance.</t>
-
         <t>The normative language for the DOCSIS QProt algorithm is in the
-        DOCSIS 3.1 specifications <xref target="DOCSIS3.1"/>, <xref
-        target="DOCSIS3.1-CM-OSS"/>, <xref target="DOCSIS3.1-CCAP-OSS"/> not
-        in this informational guide.</t>
+        DOCSIS specifications <xref target="DOCSIS"/>, <xref
+        target="DOCSIS-CM-OSS"/>, <xref target="DOCSIS-CCAP-OSS"/> not in this
+        informational guide.</t>
 
         <t>The following terms and abbreviations are used:<list
             style="hanging">
@@ -250,12 +243,13 @@
 
         <t>The simplicity and effectiveness of the algorithm is due to the
         definition of the queuing score. It uses the internal variable from
-        the AQM, probNative, that determines the ECN marking probability of
-        the low latency queue. The actual DOCSIS algorithm is defined using
-        integer arithmetic, but in the floating point arithmetic used in this
+        the native AQM, probNative, that determines the ECN marking
+        probability of the low latency queue alone (Classic queuing is not
+        relevant). The actual DOCSIS algorithm is defined using integer
+        arithmetic, but in the floating point arithmetic used in this
         document, (0 &lt;= probNative &lt;= 1). The queueing score algorithm
-        accumulates size of each arriving packet of a flow scaled by the value
-        of probNative at the time.</t>
+        accumulates the size of each arriving packet of a flow scaled by the
+        value of probNative at the time.</t>
 
         <t>The algorithm so far would accumulate a number that would rise at
         the so-called congestion-rate of the flow, i.e. the rate at which the
@@ -273,16 +267,15 @@
 
       <section anchor="qp_approach_policy" title="Policy">
         <t>The algorithm uses the queuing score to determine whether to eject
-        each packet as it arrives, rather than allow it to further increase
-        queuing delay. This limits the policies available. For instance, when
-        queueing delay exceeds a threshold, it is not possible to eject a
-        packet from the flow with the highest queuing scoring, because that
-        would involve searching the queue for such a packet (if indeed one was
-        still in the queue). Nonetheless, it is still possible to develop a
-        policy that protects the low latency of the queue by making the
-        queuing score threshold stricter the greater the excess of queuing
-        delay relative to the threshold (explained in <xref
-        target="qp_rationale_conditions"/>).</t>
+        each packet only at the time it first arrives. This limits the
+        policies available. For instance, when queueing delay exceeds a
+        threshold, it is not possible to eject a packet from the flow with the
+        highest queuing scoring, because that would involve searching the
+        queue for such a packet (if indeed one was still in the queue).
+        Nonetheless, it is still possible to develop a policy that protects
+        the low latency of the queue by making the queuing score threshold
+        stricter the greater the excess of queuing delay relative to the
+        threshold (explained in <xref target="qp_rationale_conditions"/>).</t>
 
         <t>Currently in DOCSIS, when the policy conditions are met, the action
         taken to protect the low latency queue is to reclassify a packet into
@@ -302,7 +295,7 @@
           <t>It is not possible to describe how fast or smooth an unresponsive
           flow should be to avoid queue protection, because this depends on
           how much other traffic there is and the capacity of the link, which
-          an application is unable to know. However, the smoother an
+          an application is unable to know. However, the more smoothly an
           unresponsive flow paces its packets and the lower its rate relative
           to typical broadband link capacities, the less likelihood that it
           will risk causing enough queueing to trigger queue protection.</t>
@@ -314,16 +307,16 @@
       target="I-D.ietf-tsvwg-nqb"/>, or an operator can use various other
       additional local classifiers.</t>
 
-      <t>Responsive low latency flows have to use L4S ECN <xref
+      <t>Responsive low latency flows have to use an L4S ECN codepoint <xref
       target="I-D.ietf-tsvwg-ecn-l4s-id"/> to get classified into the low
       latency queue.</t>
 
       <t>The QProt algorithm is driven from the same variable that drives the
       ECN marking probability in the low latency queue (Annex N of <xref
-      target="DOCSIS3.1"/> ). The algorithm that calculates this internal
-      variable is run on the arrival of every packet, whether it is
-      ECN-capable or not, so that it can be used by the QProt algorithm. But
-      the variable is only used to ECN-mark packets that are ECN-capable.</t>
+      target="DOCSIS"/>). The algorithm that calculates this internal variable
+      is run on the arrival of every packet, whether it is ECN-capable or not,
+      so that it can be used by the QProt algorithm. But the variable is only
+      used to ECN-mark packets that are ECN-capable.</t>
 
       <t>Not only does this dual use of the variable improve processing
       efficiency, but it also makes the basis of the QProt algorithm visible
@@ -336,11 +329,11 @@
       this level (e.g. ~1 Mb/s), to ensure that queue protection is not
       triggered during transient dynamics.</t>
 
-      <t>If the QProt algorithm is used in other settings, it would need to be
-      based on the visible level of congestion signalling, in a similar way to
-      DOCSIS. Without transparency of the basis of the algorithm's decisions,
-      end-systems would not be able to avoid triggering queue protection on an
-      objective basis.</t>
+      <t>If the QProt algorithm is used in other settings, it would still need
+      to be based on the visible level of congestion signalling, in a similar
+      way to DOCSIS. Without transparency of the basis of the algorithm's
+      decisions, end-systems would not be able to avoid triggering queue
+      protection on an objective basis.</t>
     </section>
 
     <section anchor="qp_walk-through" title="Pseudocode Walk-Through">
@@ -349,7 +342,8 @@
           <t>source and destination IP addresses of the innermost IP header
           found;</t>
 
-          <t>protocol of the layer above this IP header</t>
+          <t>the protocol (IPv4) or next header (IPv6) field in this IP
+          header</t>
 
           <t>either of:<list style="symbols">
               <t>source and destination port numbers, for TCP, UDP, UDP-Lite,
@@ -358,32 +352,33 @@
               <t>Security Parameters Index (SPI) for IPSec Encapsulating
               Security Payload (ESP) <xref target="RFC4303"/>.</t>
             </list></t>
-        </list>Annex P.3 of DOCSIS 3.1 <xref target="DOCSIS3.1"/> defines
+        </list>Annex P.3 of the DOCSIS spec. <xref target="DOCSIS"/> defines
       various strategies to find these headers by skipping extension headers
-      or encapsulations. If they cannot be found the spec defines various
-      less-specific 3-tuples that would be used. DOCSIS 3.1 should be referred
-      to for all these strategies, which will not be repeated here.</t>
+      or encapsulations. If they cannot be found, the spec. defines various
+      less-specific 3-tuples that would be used. The DOCSIS spec. should be
+      referred to for all these strategies, which will not be repeated
+      here.</t>
 
       <section anchor="qp_header_file"
                title="Input Parameters, Constants and Variables">
         <t>The operator input parameters that set the parameters in the first
         two blocks of pseudocode below are defined for cable modems (CMs) in
-        <xref target="DOCSIS3.1-CM-OSS"/> and for CMTSs in <xref
-        target="DOCSIS3.1-CCAP-OSS"/>. Then, further constants are either
-        derived from the input parameters or hard-coded.</t>
+        <xref target="DOCSIS-CM-OSS"/> and for CMTSs in <xref
+        target="DOCSIS-CCAP-OSS"/>. Then, further constants are either derived
+        from the input parameters or hard-coded.</t>
 
         <figure>
           <artwork><![CDATA[// Input Parameters
-QPROTECT_ON         // Queue Protection is enabled if TRUE
-CRITICALqL_us       // Threshold delay of L queue [us]
-CRITICALqLSCORE_us  // The threshold queuing score [us]
-LG_AGING            // The aging rate of the q'ing score, as 
-                    //  log base 2 of the congestion-rate [lg(B/s)]
+QPROTECT_ON        // Queue Protection is enabled [Default: TRUE]
+CRITICALqL_us      // L queue threshold delay [us] Default: MAXTH_us
+CRITICALqLSCORE_us // The threshold queuing score [Default: 4000us]
+LG_AGING           // The aging rate of the q'ing score [Default: 19]
+                   //  as log base 2 of the congestion-rate [lg(B/s)]
 
 // Input Parameters for the calcProbNative() algorithm:
-MAXTH_us            // Max marking threshold [us] for IAQM
-LG_RANGE            // Log base 2 of the range of ramp [lg(ns)]
-                    //  Default: 2^19 = 524288 ns (roughly 525 us)
+MAXTH_us           // Max IAQM marking threshold [Default: 1000us]
+LG_RANGE           // Log base 2 of the range of ramp [lg(ns)]
+                   //  Default: 2^19 = 524288 ns (roughly 525 us)
 
 ]]></artwork>
         </figure>
@@ -475,7 +470,9 @@ struct bucket buckets[NBUCKETS+1];]]></artwork>
         policy:<list style="empty">
             <t>qprotect(packet, ...); // Returns exit status to either forward
             or redirect the packet</t>
-          </list>It is more likely that there might be future modifications to
+          </list>('...' suppresses distracting detail.)</t>
+
+        <t>It is more likely that there might be future modifications to
         policy aspects. Therefore, policy aspects would be less appropriate
         candidates for any hardware acceleration.</t>
 
@@ -488,7 +485,7 @@ struct bucket buckets[NBUCKETS+1];]]></artwork>
    // Classify packet
       // if packet classified to Low Latency Service Flow
       if (QPROTECT_ON) {
-         if (qprotect(packet, qL.byte_length) == EXIT_SANCTION) {
+         if (qprotect(packet, ...) == EXIT_SANCTION) {
             // redirect packet to    Classic Service Flow
          }
       }
@@ -522,7 +519,8 @@ qprotect(packet, ...) {
    probNative = calcProbNative(qdelay);
 
    bckt_id = pick_bucket(packet.uflow);
-   // Not shown: if (bckt_id->t_exp risks overflow) EXIT_SANCTION
+   // if (bckt_id->t_exp risks overflow)    // Details not shown
+   //    return EXIT_SANCTION;
    qLscore = fill_bucket(buckets[bckt_id], packet.size, probNative);
 
    // Determine whether to sanction packet
@@ -544,7 +542,7 @@ qprotect(packet, ...) {
 
         <section anchor="qp_pick_bucket" title="The pick_bucket() function">
           <t>The pick_bucket() function is optimized for flow-state that will
-          normally have expired from packet to packet of the same flow. it is
+          normally have expired from packet to packet of the same flow. It is
           just one way of finding the bucket associated with the flow ID of
           each packet - it might be possible to develop more efficient
           alternatives.</t>
@@ -811,13 +809,15 @@ pick_bucket(uflw) {
                title="Rationale for Aging the Queuing Score">
         <t>Even well-behaved flows will not always be able to respond fast
         enough to dynamic events. Also well-behaved flow(s), e.g. DCTCP <xref
-        target="RFC8257"/>, TCP Prague <xref target="PragueLinux"/> or the L4S
-        variant of SCReAM for real-time media <xref target="RFC8298"/>, can
-        maintain a very shallow queue by continual careful probing for more
-        while also continually subtracting a little from their rate (or
-        congestion window) in response to low levels of ECN signalling.
-        Therefore, the QProt algorithm needs to continually offer a degree of
-        forgiveness to age out the queuing score as it accumulates.</t>
+        target="RFC8257"/>, TCP Prague <xref
+        target="I-D.briscoe-iccrg-prague-congestion-control"/>, BBRv2 <xref
+        target="BBRv2"/> or the L4S variant of SCReAM <xref target="SCReAM"/>
+        for real-time media <xref target="RFC8298"/>, can maintain a very
+        shallow queue by continual careful probing for more while also
+        continually subtracting a little from their rate (or congestion
+        window) in response to low levels of ECN signalling. Therefore, the
+        QProt algorithm needs to continually offer a degree of forgiveness to
+        age out the queuing score as it accumulates.</t>
 
         <t>Scalable congestion controllers such as those above maintain their
         congestion window in inverse proportion to the congestion level,
@@ -827,8 +827,8 @@ pick_bucket(uflw) {
         many other flows it competes with. For instance, if the link capacity
         doubles, a scalable flow induces half the congestion probability. Or
         if three scalable flows compete for the capacity, each flow will
-        reduce to one third of the capacity and increase the congestion level
-        by 3x.</t>
+        reduce to one third of the capacity they would use on their own and
+        increase the congestion level by 3x.</t>
 
         <t>This suggests that the QProt algorithm will not sanction a
         well-behaved scalable flow if it ages out the queuing score at a
@@ -1021,16 +1021,16 @@ Arriving Packet's Flow
         threshold. Also more memory would be required to hold the extra flow
         state.</t>
 
-        <t>When a packet is redirected into the Classic queue, the
-        identifier(s) that originally caused it to be classified into the Low
-        Latency queue (e.g. ECN field and/or Diffserv codepoint) are not
-        normally altered (see Section 5.4.1 of <xref
-        target="I-D.ietf-tsvwg-ecn-l4s-id"/>). This is justified because
-        redirection of occasional packets can be due to unusually high
-        transient load at the bottleneck, not necessarily due to a badly
-        behaved flow. It would therefore be inappropriate to prevent each
-        redirected packet from being classified into a low latency queue
-        further downstream.</t>
+        <t>When a packet is redirected into the Classic queue, an operator
+        might want to alter the identifier(s) that originally caused it to be
+        classified into the Low Latency queue (e.g. ECN field and/or Diffserv
+        codepoint), so that the packet will not be classified into another low
+        latency queue further downstream. However, redirection of occasional
+        packets can be due to unusually high transient load just at the
+        specific bottleneck, not necessarily at any other bottleneck, and not
+        necessarily due to bad flow behaviour. So identifiers are not normally
+        altered (see Section 5.4.1 of <xref
+        target="I-D.ietf-tsvwg-ecn-l4s-id"/>).</t>
 
         <t>QProt could be extended to recognize that large numers of
         redirected packets belong to the same flow. This might be detected
@@ -1042,9 +1042,9 @@ Arriving Packet's Flow
         idle timeout to remove stale classifiers. In these 'persistent
         offender' cases, QProt might also overwrite each redirected packet's
         Diffserv Codepoint or clear its ECN field to Not-ECT, in order to
-        protect other potential L4S queues downstream. Further specification
-        of sanctions on whole flows is beyond the scope of the present
-        document.</t>
+        protect other potential L4S queues downstream. Sanctioning whole flows
+        is not specified in DOCSIS, so more details would be beyond the scope
+        of the present document.</t>
       </section>
     </section>
 
@@ -1068,7 +1068,8 @@ Arriving Packet's Flow
       under one flow ID.</t>
     </section>
 
-    <section anchor="l4sds_IANA" title="IANA Considerations">
+    <section anchor="l4sds_IANA"
+             title="IANA Considerations  (to be removed by RFC Editor)">
       <t>This specification contains no IANA considerations.</t>
     </section>
 
@@ -1083,7 +1084,7 @@ Arriving Packet's Flow
       traffic crafted to overrun the resources used for the algorithm's own
       processing and flow state. This means that non-queue-building flows will
       always be less likely to be sanctioned than queue-building flows. But an
-      attack could be contrived to deplete resources in such as way that the
+      attack could be contrived to deplete resources in such a way that the
       proportion of innocent (non-queue-building) flows that are incorrectly
       sanctioned could increase.</t>
     </section>
@@ -1107,13 +1108,11 @@ Arriving Packet's Flow
 
   <back>
     <references title="Normative References">
-      <?rfc include="reference.RFC.2119" ?>
-
       <?rfc include="reference.RFC.8311" ?>
 
       <?rfc include='reference.I-D.ietf-tsvwg-ecn-l4s-id'?>
 
-      <reference anchor="DOCSIS3.1"
+      <reference anchor="DOCSIS"
                  target="https://specification-search.cablelabs.com/CM-SP-MULPIv3.1">
         <front>
           <title>MAC and Upper Layer Protocols Interface (MULPI)
@@ -1133,7 +1132,7 @@ Arriving Packet's Flow
                 type="PDF"/>
       </reference>
 
-      <reference anchor="DOCSIS3.1-CM-OSS"
+      <reference anchor="DOCSIS-CM-OSS"
                  target="https://specification-search.cablelabs.com/CM-SP-CM-OSSIv3.1">
         <front>
           <title>Cable Modem Operations Support System Interface Spec</title>
@@ -1152,7 +1151,7 @@ Arriving Packet's Flow
                 type="PDF"/>
       </reference>
 
-      <reference anchor="DOCSIS3.1-CCAP-OSS"
+      <reference anchor="DOCSIS-CCAP-OSS"
                  target="https://specification-search.cablelabs.com/CM-SP-CM-OSSIv3.1">
         <front>
           <title>CCAP Operations Support System Interface Spec</title>
@@ -1189,50 +1188,7 @@ Arriving Packet's Flow
 
       <?rfc include="reference.I-D.ietf-tsvwg-nqb" ?>
 
-      <reference anchor="PragueLinux"
-                 target="https://www.netdevconf.org/0x13/session.html?talk-tcp-prague-l4s">
-        <front>
-          <title>Implementing the `TCP Prague' Requirements for Low Latency
-          Low Loss Scalable Throughput (L4S)</title>
-
-          <author fullname="Bob Briscoe" initials="B." surname="Briscoe">
-            <organization>Independent</organization>
-          </author>
-
-          <author fullname="Koen De Schepper" initials="K."
-                  surname="De Schepper">
-            <organization>Nokia Bell Labs</organization>
-          </author>
-
-          <author fullname="Olga Albisser" initials="O." surname="Albisser">
-            <organization>Simula Research Lab</organization>
-          </author>
-
-          <author fullname="Joakim Misund" initials="J." surname="Misund">
-            <organization>Simula Research Lab</organization>
-          </author>
-
-          <author fullname="Olivier Tilmans" initials="O." surname="Tilmans">
-            <organization>Nokia Bell Labs</organization>
-          </author>
-
-          <author fullname="Mirja K&uuml;hlewind" initials="M."
-                  surname="K&uuml;hlewind">
-            <organization>ETH Zurich</organization>
-          </author>
-
-          <author fullname="Asad Sajjad Ahmed" initials="A.S." surname="Ahmed">
-            <organization>Simula Research Lab</organization>
-          </author>
-
-          <date month="March" year="2019"/>
-        </front>
-
-        <seriesInfo name="Proc. Linux Netdev 0x13" value=""/>
-
-        <format target="https://www.files.netdevconf.org/f/4d6939d5f1fb404fafd1/?dl=1"
-                type="PDF"/>
-      </reference>
+      <?rfc include='reference.I-D.briscoe-iccrg-prague-congestion-control'?>
 
       <reference anchor="ScalingCC" target="https://arxiv.org/abs/1904.07605">
         <front>
@@ -1255,6 +1211,44 @@ Arriving Packet's Flow
                     value="TR-CS-2016-001 arXiv:1904.07605"/>
 
         <format target="https://arxiv.org/abs/1904.07605" type="PDF"/>
+      </reference>
+
+      <reference anchor="BBRv2"
+                 target="https://github.com/google/bbr/blob/v2alpha/README.md">
+        <front>
+          <title>TCP BBR v2 Alpha/Preview Release</title>
+
+          <author fullname="Neal Cardwell" initials="N" surname="Cardwell">
+            <organization/>
+          </author>
+
+          <date/>
+        </front>
+
+        <seriesInfo name="github repository;"
+                    value="Linux congestion control module"/>
+
+        <format target="https://github.com/google/bbr/blob/v2alpha/README.md"
+                type="Source code"/>
+      </reference>
+
+      <reference anchor="SCReAM"
+                 target="https://github.com/EricssonResearch/scream/blob/master/README.md">
+        <front>
+          <title>SCReAM</title>
+
+          <author fullname="Ingemar Johansson" initials="I"
+                  surname="Johansson">
+            <organization/>
+          </author>
+
+          <date/>
+        </front>
+
+        <seriesInfo name="github repository;" value=""/>
+
+        <format target="https://github.com/google/bbr/blob/v2alpha/README.md"
+                type="Source code"/>
       </reference>
     </references>
   </back>
