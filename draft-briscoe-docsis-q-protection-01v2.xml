@@ -115,7 +115,7 @@
       erroneously be classified into a low latency queue, whether accidentally
       or maliciously. QProt protects other traffic in the low latency queue
       from the harm due to excess queuing that would otherwise be caused by
-      such erroneous behaviour.</t>
+      such anomalous behaviour.</t>
 
       <t>In normal scenarios without misclassified traffic, QProt is not
       expected to intervene at all in the classification or forwarding of
@@ -155,9 +155,10 @@
       that the metric used for the queuing score is based on the same variable
       that determines the level of ECN signalling seen by the sender <xref
       target="RFC8311"/>, <xref target="I-D.ietf-tsvwg-ecn-l4s-id"/>. This
-      ensures transparency, which is necessary to be able to objectively state
-      (in <xref target="qp_nec_flow_behaviour"/>) how a flow can keep on the
-      'good' side of the algorithm.</t>
+      makes the internal queuing score visible externally as ECN markings.
+      This transparency is necessary to be able to objectively state (in <xref
+      target="qp_nec_flow_behaviour"/>) how a flow can keep on the 'good' side
+      of the algorithm.</t>
 
       <section title="Document Roadmap">
         <t>The core of the document is the walk-through of the DOCSIS QProt
@@ -198,9 +199,9 @@
             <t hangText="Non-queue-building:">A flow that tends not to build a
             queue</t>
 
-            <t hangText="Queue-building:">A flow that builds a queue, and
-            therefore is a candidate for the queue protection algorithm to
-            detect and sanction</t>
+            <t hangText="Queue-building:">A flow that builds a queue. If it is
+            classified into the Low Latency queue, it is therefore a candidate
+            for the queue protection algorithm to detect and sanction.</t>
 
             <t hangText="ECN:">Explicit Congestion Notification</t>
 
@@ -425,7 +426,7 @@ MAXTH = MINTH + RANGE;           // Max marking threshold [ns]
         <figure>
           <artwork><![CDATA[// Public variables:
 qdelay         // The current queuing delay of the LL queue [ns]
-probNative     // The native probability of the LL queue within [0,1]
+probNative     // Native marking probability of LL queue within [0,1]
 
 // External variables
 packet             // The structure holding packet header fields
@@ -497,11 +498,12 @@ struct bucket buckets[NBUCKETS+1];]]></artwork>
 
         <section anchor="qp_qprotect" title="The qprotect() function">
           <t>On each packet arrival, qprotect() measures the current queue
-          delay and derives the native probability from it. Then it uses
-          pick_bucket to find the bucket already holding the flow's state, or
-          to allocate a new bucket if the flow is new or its state has expired
-          (the most likely case). Then the queuing score is updated by the
-          fill_bucket() function. That completes the mechanism aspects.</t>
+          delay and derives the native marking probability from it. Then it
+          uses pick_bucket to find the bucket already holding the flow's
+          state, or to allocate a new bucket if the flow is new or its state
+          has expired (the most likely case). Then the queuing score is
+          updated by the fill_bucket() function. That completes the mechanism
+          aspects.</t>
 
           <t>The comments against the subsequent policy conditions and actions
           should be self-explanatory at a superficial level. The deeper
@@ -747,8 +749,8 @@ pick_bucket(uflw) {
         during each burst, if we say the rate of c and b are 80% and 45% of
         capacity, thus causing 125% overload, they each bear (80/125)% and
         (45/125)% of the responsibility for the queuing delay (64% and 36%).
-        The algorithm does not explicit calculate these percentages. They are
-        just the outcome of the number of packets arriving from each flow
+        The algorithm does not explicitly calculate these percentages. They
+        are just the outcome of the number of packets arriving from each flow
         during the burst.</t>
 
         <t>To summarize, the queuing score never sanctions rate solely on its
