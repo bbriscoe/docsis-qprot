@@ -916,11 +916,11 @@ pick_bucket(uflw) {
 
         <t>If the queue delay threshold is exceeded, the flow's queuing score
         is temporarily scaled up by the current queue delay normalized as a
-        ratio of the threshold queuing delay CRITICALqL. If this scaled up
-        score exceeds another constant threshold CRITICALqLSCORE, the packet
-        is ejected. The actual last line of code above multiplies both sides
-        of the second condition by CRITICALqLSCORE to avoid a costly
-        division.</t>
+        ratio of the threshold queuing delay CRITICALqL (the reason for the
+        scaling is given next). If this scaled up score exceeds another
+        constant threshold CRITICALqLSCORE, the packet is ejected. The actual
+        last line of code above multiplies both sides of the second condition
+        by CRITICALqL to avoid a costly division. </t>
 
         <t>This approach allows each packet to be assessed once, as it
         arrives. Once queue delay exceeds the threshold, it has two
@@ -994,6 +994,15 @@ Arriving Packet's Flow
         that, as actual harm increases, the judgement of innocence becomes
         increasingly stringent; the behaviour record of the next packet's flow
         does not have to be as bad to eject it.</t>
+
+        <t>Conditioning ejection on actual harm helps prevent VPN packets
+        being ejected unnecessarily. VPNs consisting of multiple flows can
+        tend to accumulate queuing score faster than it is aged out, because
+        the aging rate is intended for a single flow. However, whether or not
+        some traffic is in a VPN, the CRITICALqL queue delay threshold will be
+        no more likely to be exceeded. So conditioning ejection on actual harm
+        helps reduce the chance that VPN traffic will be ejected by the QProt
+        function.</t>
       </section>
 
       <section anchor="qp_rationale_reclassify"
