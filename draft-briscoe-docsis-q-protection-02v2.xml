@@ -1114,7 +1114,7 @@ Arriving Packet's Flow
         own policy, without prejudging what other operators ought to do.</t>
 
         <t>Although not supported in the DOCSIS spec's, QProt could be
-        extended to recognize that large numers of redirected packets belong
+        extended to recognize that large numbers of redirected packets belong
         to the same flow. This might be detected when the bucket expiry time
         t_exp exceeds a threshold, which could also conveniently prevent
         overflow of the t_exp variable (see the qprotect() function in <xref
