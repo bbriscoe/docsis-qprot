@@ -98,8 +98,8 @@
       types of audience: a) congestion control designers who need to
       understand how to keep on the 'good' side of the algorithm; b)
       implementers of the algorithm who want to understand it in more depth;
-      or c) designers of algorithms with similar goals, perhaps for non-DOCSIS
-      scenarios.</t>
+      and c) designers of algorithms with similar goals, perhaps for
+      non-DOCSIS scenarios.</t>
     </abstract>
   </front>
 
@@ -109,9 +109,9 @@
       protection (QProt) algorithm used in DOCSIS technology since version 3.1
       <xref target="DOCSIS"/>.</t>
 
-      <t>Although the algorithm is defined in an annex of the DOCSIS spec, the
-      annex relies on cross-references to many other parts of the spec. So it
-      was considered useful to pull all the strands together into one
+      <t>Although the algorithm is defined in an annex of the DOCSIS spec
+      (currently Annex P), it relies on cross-references to many other parts
+      of the spec. This document pulls all the strands together into one
       self-contained document. The core of the document is a similar
       pseudocode walk-through to that in the DOCSIS spec, but it also includes
       additional material: i) a brief overview; ii) a definition of how a data
@@ -120,7 +120,7 @@
 
       <t>Low queuing delay depends on hosts sending their data smoothly,
       either at low rate or responding to explicit congestion notifications
-      (ECN). So low latency is something hosts create themselves, not
+      (ECN). So low queuing latency is something hosts create themselves, not
       something the network gives them. Therefore, self-interest gives no
       incentive for flows to mis-mark their packets for the low latency queue.
       However, traffic from an application that does not behave in a
@@ -156,11 +156,11 @@
       <t>If QProt is used in settings other than DOCSIS links, it would be a
       simple matter to detect queue-building flows by using slightly different
       conditions, and/or to trigger a different action as a consequence, as
-      appropriate for the scenario, e.g.&nbsp;dropping instead of
+      appropriate for the scenario, e.g.,&nbsp;dropping instead of
       reclassifying packets or perhaps accumulating a second per-flow score to
       decide whether to redirect a whole flow rather than just certain
       packets. Such work is for future study and out of scope of the present
-      draft.</t>
+      document.</t>
 
       <t>The algorithm is based on a rigorous approach to quantifying how much
       each flow contributes to congestion, which is used in economics to
@@ -231,13 +231,13 @@
       <section title="Copyright Material">
         <t>Parts of this document are reproduced from <xref target="DOCSIS"/>
         with kind permission of the copyright holder, Cable Television
-        Laboratories, Inc. ("CableLabs"). </t>
+        Laboratories, Inc. ("CableLabs") {ToDo PENDING}. </t>
       </section>
     </section>
 
     <section anchor="qp_approach" title="Approach - In Brief">
       <t>The algorithm is divided into mechanism and policy. There is only a
-      tiny amount of policy code, but policy might need to be changed in
+      tiny amount of policy code, but policy might need to be changed in the
       future. So, where hardware implementation is being considered, it would
       be advisable to implement the policy aspects in firmware or
       software:<list style="symbols">
@@ -250,7 +250,7 @@
               should be taken to avert the risk of queuing delay becoming
               excessive;</t>
 
-              <t>The actions determine how this risk is averted, e.g.&nbsp;by
+              <t>The actions determine how this risk is averted, e.g.,&nbsp;by
               redirecting packets from a flow into another queue, or to
               reclassify a whole flow that seems to be misclassified.</t>
             </list></t>
@@ -280,12 +280,12 @@
         value of probNative at the time.</t>
 
         <t>The algorithm as described so far would accumulate a number that
-        would rise at the so-called congestion-rate of the flow, i.e.&nbsp;the
-        rate at which the flow is contributing to congestion, or the rate at
-        which the AQM is forwarding bytes of the flow that are ECN marked.
-        However, rather than growing continually, the queuing score is also
-        reduced (or 'aged') at a constant rate. This gives each flow an
-        allowed congestion rate, which is justified in <xref
+        would rise at the so-called congestion-rate of the flow,
+        i.e.,&nbsp;the rate at which the flow is contributing to congestion,
+        or the rate at which the AQM is forwarding bytes of the flow that are
+        ECN marked. However, rather than growing continually, the queuing
+        score is also reduced (or 'aged') at a constant rate. This gives each
+        flow an allowed congestion rate, which is justified in <xref
         target="qp_rationale_aging"/>.</t>
 
         <t>In practice, the queuing score is normalized into time units (so
@@ -338,8 +338,8 @@
       <t>A sender can arrange for flows that are smooth but do not respond to
       ECN marking to be classified into the low latency queue by using the
       Non-Queue-Building (NQB) Diffserv codepoint <xref
-      target="I-D.ietf-tsvwg-nqb"/>, which the DOCSIS spec's support, or an
-      operator can use various other local classifiers.</t>
+      target="I-D.ietf-tsvwg-nqb"/>, which the DOCSIS specifications support,
+      or an operator can use various other local classifiers.</t>
 
       <t>The QProt algorithm is driven from the same variable that drives the
       ECN marking probability in the low latency queue (see the Immediate
@@ -357,8 +357,8 @@
       congestion-rate) below AGING, which is a configured constant of the
       algorithm (default 2^19 B/s ~= 4.2 Mb/s). Note that it is in a
       congestion controller's own interest to keep its average congestion-rate
-      well below this level (e.g. ~1 Mb/s), to ensure that it does not trigger
-      queue protection during transient dynamics.</t>
+      well below this level (e.g., ~1 Mb/s), to ensure that it does not
+      trigger queue protection during transient dynamics.</t>
 
       <t>If the QProt algorithm is used in other settings, it would still need
       to be based on the visible level of congestion signalling, in a similar
@@ -435,7 +435,7 @@ MAXTH = MINTH + RANGE;           // Max marking threshold [ns]
 
         <t>The resolution for expressing time, T_RES, needs to be chosen to
         ensure that expiry times for buckets can represent times that are a
-        fraction (e.g. 1/10) of the expected packet interarrival time for the
+        fraction (e.g., 1/10) of the expected packet interarrival time for the
         system.</t>
 
         <t>The following definitions explain the purpose of important
@@ -451,7 +451,7 @@ probNative     // Native marking probability of LL queue within [0,1]
 packet             // The structure holding packet header fields
 packet.size        // The size of the current packet [B]
 packet.uflow       // The flow identifier of the current packet
-                   //  (e.g. 5-tuple or 4-tuple if IPSec)
+                   //  (e.g., 5-tuple or 4-tuple if IPSec)
 
 // Irrelevant details of DOCSIS function to return qdelay are removed
 qdelayL(...)      // Returns current delay of the low latency Q [ns]
@@ -490,7 +490,7 @@ qdelayL(...)      // Returns current delay of the low latency Q [ns]
         <figure>
           <artwork><![CDATA[<CODE BEGINS>
 struct bucket { // The leaky bucket structure to hold per-flow state
-   id;          // identifier (e.g. 5-tuple) of the flow using bucket
+   id;          // identifier (e.g., 5-tuple) of the flow using bucket
    t_exp;       // expiry time in units of T_RES
                 // (t_exp - now) = flow's normalized q'ing score
 };
@@ -520,8 +520,8 @@ struct bucket buckets[NBUCKETS+1];
             or redirect the packet</t>
           </list>('...' suppresses distracting detail.)</t>
 
-        <t>It is more likely that there might be future modifications to
-        policy aspects. Therefore, policy aspects would be less appropriate
+        <t>Future modifications to policy aspects are more likely than to
+        mechanisms. Therefore, policy aspects would be less appropriate
         candidates for any hardware acceleration.</t>
 
         <t>The entry point to these functions is qprotect(), which is called
@@ -700,11 +700,11 @@ pick_bucket(uflw) {
           dividing by AGING, so that the result represents the new expiry time
           of the flow.</t>
 
-          <t>It might be thought that, instead of multiplying the packet size
-          (pkt_sz) by probNative, packets could be selected by the AQM with
-          probability probNative, as they are for ECN-marking. Then the full
-          size of those selected packets would be used to increment the
-          queuing score. However, the author's experience with other
+          <t>Given that probNative is already used to select which packets to
+          ECN-mark, it might be thought that the queuing score could just be
+          incremented by the full size of each selected packet, instead of
+          incrementing it by the product of every packet's size (pkt_sz) and
+          probNative. However, the author's unpublished experience with other
           congestion policers has found that the score then increments far too
           jumpily, particularly when probNative is low.</t>
 
@@ -770,7 +770,7 @@ calcProbNative(qdelay){
 
         <figure anchor="qp_fig_blame_cbr_v_burst"
                 title="Which is More to Blame for Queuing Delay?">
-          <artwork><![CDATA[^ bit-rate
+          <artwork><![CDATA[^ bit rate (stacked areas)
 |  ,-.          ,-.          ,-.          ,-.          ,-.
 |--|b|----------|b|----------|b|----------|b|----------|b|---Capacity
 |__|_|__________|_|__________|_|__________|_|__________|_|_____
@@ -809,7 +809,7 @@ calcProbNative(qdelay){
         <t>Then, during the periods between bursts (b), neither flow
         accumulates any queuing score - the high rate of c is benign. But,
         during each burst, if we say the rate of c and b are 80% and 45% of
-        capacity, thus causing 125% overload, they each bear (80/125)% and
+        capacity, thus causing 25% overload, they each bear (80/125)% and
         (45/125)% of the responsibility for the queuing delay (64% and 36%).
         The algorithm does not explicitly calculate these percentages. They
         are just the outcome of the number of packets arriving from each flow
@@ -820,7 +820,7 @@ calcProbNative(qdelay){
 
         <figure anchor="qp_fig_blame_scenario"
                 title="Responsibility for Queuing: More Complex Scenario">
-          <artwork><![CDATA[^ bit-rate                                ,
+          <artwork><![CDATA[^ bit rate (stacked areas)                               ,
 |               ,-.                       |\           ,-
 |------Capacity-|b|----------,-.----------|b|----------|b\-----
 |             __|_|_______   |b|        /``\| _...-._-': | ,.--
@@ -872,7 +872,7 @@ calcProbNative(qdelay){
       <section anchor="qp_rationale_aging"
                title="Rationale for Aging the Queuing Score">
         <t>Even well-behaved flows will not always be able to respond fast
-        enough to dynamic events. Also well-behaved flows, e.g. DCTCP <xref
+        enough to dynamic events. Also well-behaved flows, e.g., DCTCP <xref
         target="RFC8257"/>, TCP Prague <xref
         target="I-D.briscoe-iccrg-prague-congestion-control"/>, BBRv2 <xref
         target="BBRv2"/> or the L4S variant of SCReAM <xref target="SCReAM"/>
@@ -965,7 +965,7 @@ calcProbNative(qdelay){
         function. When each packet arrives, after finding its flow state and
         updating the queuing score of the packet's flow, the algorithm checks
         whether the shared queue delay exceeds a constant threshold CRITICALqL
-        (e.g. 2 ms), as repeated below for convenience:</t>
+        (e.g., 2 ms), as repeated below for convenience:</t>
 
         <figure>
           <artwork><![CDATA[<CODE BEGINS>
@@ -1115,11 +1115,11 @@ Arriving Packet's Flow
         Therefore, Section 5.4.1.2 of <xref
         target="I-D.ietf-tsvwg-ecn-l4s-id"/> precludes a network node from
         altering the end-to-end ECN field to exclude traffic from L4S
-        treatment. Instead a local-use identifier ought to be used (e.g.
+        treatment. Instead a local-use identifier ought to be used (e.g.,
         Diffserv Codepoint or VLAN tag), so that each operator can apply its
         own policy, without prejudging what other operators ought to do.</t>
 
-        <t>Although not supported in the DOCSIS spec's, QProt could be
+        <t>Although not supported in the DOCSIS specifications, QProt could be
         extended to recognize that large numbers of redirected packets belong
         to the same flow. This might be detected when the bucket expiry time
         t_exp exceeds a threshold, which could also conveniently prevent
@@ -1130,8 +1130,8 @@ Arriving Packet's Flow
         stale classifiers. In these 'persistent offender' cases, QProt might
         also overwrite each redirected packet's DSCP or clear its ECN field to
         Not-ECT, in order to protect other potential L4S queues downstream.
-        The DOCSIS spec's do not discuss sanctioning whole flows, so further
-        discussion is beyond the scope of the present document.</t>
+        The DOCSIS specifications do not discuss sanctioning whole flows, so
+        further discussion is beyond the scope of the present document.</t>
       </section>
     </section>
 
@@ -1143,7 +1143,7 @@ Arriving Packet's Flow
       <t>This choice of identifier for grouping is pragmatic with no
       scientific basis. All the packets of a flow certainly pass between the
       same two endpoints. But some applications might initiate multiple flows
-      between the same end-points, e.g.&nbsp;for media, control, data, etc.
+      between the same end-points, e.g.,&nbsp;for media, control, data, etc.
       Others might use common flow identifiers for all these streams. Also, a
       user might group multiple application flows within the same encrypted
       VPN between the same layer-4 tunnel end-points. And even if there were a
