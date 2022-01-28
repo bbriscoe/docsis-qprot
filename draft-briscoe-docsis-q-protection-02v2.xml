@@ -227,6 +227,12 @@
             <t hangText="QProt:">The Queue Protection function</t>
           </list></t>
       </section>
+
+      <section title="Copyright Material">
+        <t>Parts of this document are reproduced from <xref target="DOCSIS"/>
+        with kind permission of the copyright holder, Cable Television
+        Laboratories, Inc. ("CableLabs"). </t>
+      </section>
     </section>
 
     <section anchor="qp_approach" title="Approach - In Brief">
