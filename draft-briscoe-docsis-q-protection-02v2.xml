@@ -109,9 +109,9 @@
       protection (QProt) algorithm used in DOCSIS technology since version 3.1
       <xref target="DOCSIS"/>.</t>
 
-      <t>Although the algorithm is defined in an annex of the DOCSIS spec
-      (currently Annex P), it relies on cross-references to many other parts
-      of the spec. This document pulls all the strands together into one
+      <t>Although the algorithm is defined in annex P of <xref
+      target="DOCSIS"/>, it relies on cross-references to other parts of the
+      set of specs. This document pulls all the strands together into one
       self-contained document. The core of the document is a similar
       pseudocode walk-through to that in the DOCSIS spec, but it also includes
       additional material: i) a brief overview; ii) a definition of how a data
@@ -194,10 +194,9 @@
 
       <section anchor="l4sds_Terminology" title="Terminology">
         <t>The normative language for the DOCSIS QProt algorithm is in the
-        DOCSIS specifications <xref target="DOCSIS"/>, <xref
-        target="DOCSIS-CM-OSS"/>, <xref target="DOCSIS-CCAP-OSS"/> not in this
-        informational guide. If there is any inconsistency, the DOCSIS
-        specifications take precedence.</t>
+        DOCSIS specs <xref target="DOCSIS"/>, <xref target="DOCSIS-CM-OSS"/>,
+        <xref target="DOCSIS-CCAP-OSS"/> not in this informational guide. If
+        there is any inconsistency, the DOCSIS specs take precedence.</t>
 
         <t>The following terms and abbreviations are used:<list
             style="hanging">
@@ -231,7 +230,7 @@
       <section title="Copyright Material">
         <t>Parts of this document are reproduced from <xref target="DOCSIS"/>
         with kind permission of the copyright holder, Cable Television
-        Laboratories, Inc. ("CableLabs") {ToDo PENDING}. </t>
+        Laboratories, Inc. ("CableLabs"). </t>
       </section>
     </section>
 
@@ -338,8 +337,8 @@
       <t>A sender can arrange for flows that are smooth but do not respond to
       ECN marking to be classified into the low latency queue by using the
       Non-Queue-Building (NQB) Diffserv codepoint <xref
-      target="I-D.ietf-tsvwg-nqb"/>, which the DOCSIS specifications support,
-      or an operator can use various other local classifiers.</t>
+      target="I-D.ietf-tsvwg-nqb"/>, which the DOCSIS specs support, or an
+      operator can use various other local classifiers.</t>
 
       <t>The QProt algorithm is driven from the same variable that drives the
       ECN marking probability in the low latency queue (see the Immediate
@@ -380,8 +379,8 @@
 
         <t>Defaults and units are shown in square brackets. Defaults (or
         indeed any aspect of the algorithm) are subject to change, so the
-        latest DOCSIS specifications are the definitive references. Also any
-        operator might set certain parameters to non-default values.</t>
+        latest DOCSIS specs are the definitive references. Also any operator
+        might set certain parameters to non-default values.</t>
 
         <figure>
           <artwork><![CDATA[<CODE BEGINS>
@@ -490,7 +489,7 @@ qdelayL(...)      // Returns current delay of the low latency Q [ns]
         <figure>
           <artwork><![CDATA[<CODE BEGINS>
 struct bucket { // The leaky bucket structure to hold per-flow state
-   id;          // identifier (e.g., 5-tuple) of the flow using bucket
+   id;          // identifier (e.g., 5-tuple) of flow using bucket
    t_exp;       // expiry time in units of T_RES
                 // (t_exp - now) = flow's normalized q'ing score
 };
@@ -704,9 +703,9 @@ pick_bucket(uflw) {
           ECN-mark, it might be thought that the queuing score could just be
           incremented by the full size of each selected packet, instead of
           incrementing it by the product of every packet's size (pkt_sz) and
-          probNative. However, the author's unpublished experience with other
-          congestion policers has found that the score then increments far too
-          jumpily, particularly when probNative is low.</t>
+          probNative. However, the unpublished experience of one of the
+          authors with other congestion policers has found that the score then
+          increments far too jumpily, particularly when probNative is low.</t>
 
           <t>A deeper explanation of the queuing score is given in <xref
           target="qp_rationale"/>.</t>
@@ -760,13 +759,14 @@ calcProbNative(qdelay){
 
       <section anchor="qp_rationale_not_throughput"
                title="Rationale: Blame for Queuing, not for Rate in Itself">
-        <t><xref target="qp_fig_blame_cbr_v_burst"/> poses the question of
-        which flow is more to blame for queuing delay; the unresponsive
-        constant bit rate flow (c) that is consuming about 80% of the
-        capacity, or the flow sending regular short unresponsive bursts (b)?
-        The smoothness of c seems better for avoiding queuing, but its high
-        rate does not. However, if flow c was not there, or ran slightly more
-        slowly, b would not cause any queuing.</t>
+        <t><xref target="qp_fig_blame_cbr_v_burst"/> shows the bit rates of
+        two flows as stacked areas. It poses the question of which flow is
+        more to blame for queuing delay; the unresponsive constant bit rate
+        flow (c) that is consuming about 80% of the capacity, or the flow
+        sending regular short unresponsive bursts (b)? The smoothness of c
+        seems better for avoiding queuing, but its high rate does not.
+        However, if flow c was not there, or ran slightly more slowly, b would
+        not cause any queuing.</t>
 
         <figure anchor="qp_fig_blame_cbr_v_burst"
                 title="Which is More to Blame for Queuing Delay?">
@@ -837,14 +837,15 @@ calcProbNative(qdelay){
         <t><xref target="qp_fig_blame_scenario"/> gives a more complex
         illustration of the way the queuing score assigns responsibility for
         queuing (limited to the precision that ASCII art can illustrate). The
-        unresponsive bursts (b) are the same as in the previous example, but a
-        variable rate video (v) replaces flow c. It's rate varies as the
-        complexity of the video scene varies. Also on a slower timescale, in
-        response to the level of congestion, the video adapts its quality.
-        However, on a short time-scale it appears to be unresponsive to small
-        amounts of queuing. Also, part-way through, a low latency responsive
-        flow (r) joins in, aiming to fill the balance of capacity left by the
-        other two.</t>
+        figure shows the bit rates of three flows represented as stacked areas
+        labelled b, v and r. The unresponsive bursts (b) are the same as in
+        the previous example, but a variable rate video (v) replaces flow c.
+        It's rate varies as the complexity of the video scene varies. Also on
+        a slower timescale, in response to the level of congestion, the video
+        adapts its quality. However, on a short time-scale it appears to be
+        unresponsive to small amounts of queuing. Also, part-way through, a
+        low latency responsive flow (r) joins in, aiming to fill the balance
+        of capacity left by the other two.</t>
 
         <t>The combination of the first burst and the low application-limited
         rate of the video causes neither flow to accumulate queuing score. In
@@ -1119,19 +1120,19 @@ Arriving Packet's Flow
         Diffserv Codepoint or VLAN tag), so that each operator can apply its
         own policy, without prejudging what other operators ought to do.</t>
 
-        <t>Although not supported in the DOCSIS specifications, QProt could be
-        extended to recognize that large numbers of redirected packets belong
-        to the same flow. This might be detected when the bucket expiry time
-        t_exp exceeds a threshold, which could also conveniently prevent
-        overflow of the t_exp variable (see the qprotect() function in <xref
+        <t>Although not supported in the DOCSIS specs, QProt could be extended
+        to recognize that large numbers of redirected packets belong to the
+        same flow. This might be detected when the bucket expiry time t_exp
+        exceeds a threshold, which could also conveniently prevent overflow of
+        the t_exp variable (see the qprotect() function in <xref
         target="qp_qprotect"/>). Depending on policy and implementation
         capabilities, QProt could then install a classifier to redirect a
         whole flow into the Classic queue, with an idle timeout to remove
         stale classifiers. In these 'persistent offender' cases, QProt might
         also overwrite each redirected packet's DSCP or clear its ECN field to
         Not-ECT, in order to protect other potential L4S queues downstream.
-        The DOCSIS specifications do not discuss sanctioning whole flows, so
-        further discussion is beyond the scope of the present document.</t>
+        The DOCSIS specs do not discuss sanctioning whole flows, so further
+        discussion is beyond the scope of the present document.</t>
       </section>
     </section>
 
