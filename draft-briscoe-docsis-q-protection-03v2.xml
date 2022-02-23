@@ -354,10 +354,10 @@
       possible to state objectively that a flow can avoid triggering queue
       protection by keeping the bit rate of ECN marked packets (the
       congestion-rate) below AGING, which is a configured constant of the
-      algorithm (default 2^19 B/s ~= 4.2 Mb/s). Note that it is in a
-      congestion controller's own interest to keep its average congestion-rate
-      well below this level (e.g., ~1 Mb/s), to ensure that it does not
-      trigger queue protection during transient dynamics.</t>
+      algorithm (default 2^19 B/s ~= 4 Mb/s). Note that it is in a congestion
+      controller's own interest to keep its average congestion-rate well below
+      this level (e.g., ~1 Mb/s), to ensure that it does not trigger queue
+      protection during transient dynamics.</t>
 
       <t>If the QProt algorithm is used in other settings, it would still need
       to be based on the visible level of congestion signalling, in a similar
@@ -385,15 +385,16 @@
         <figure>
           <artwork><![CDATA[<CODE BEGINS>
 // Input Parameters
-QPROTECT_ON        // Queue Protection is enabled [Default: TRUE]
-CRITICALqL_us      // L queue threshold delay [us] Default: MAXTH_us
-CRITICALqLSCORE_us // The threshold queuing score [Default: 4000us]
-LG_AGING           // The aging rate of the q'ing score [Default: 19]
+MAX_RATE;          // Configured maximum sustained rate [b/s]
+QPROTECT_ON;       // Queue Protection is enabled [Default: TRUE]
+CRITICALqL_us;     // L queue threshold delay [us] Default: MAXTH_us
+CRITICALqLSCORE_us;// The threshold queuing score [Default: 4000us]
+LG_AGING;          // The aging rate of the q'ing score [Default: 19]
                    //  as log base 2 of the congestion-rate [lg(B/s)]
 
 // Input Parameters for the calcProbNative() algorithm:
-MAXTH_us           // Max IAQM marking threshold [Default: 1000us]
-LG_RANGE           // Log base 2 of the range of ramp [lg(ns)]
+MAXTH_us;          // Max IAQM marking threshold [Default: 1000us]
+LG_RANGE;          // Log base 2 of the range of ramp [lg(ns)]
                    //  Default: 2^19 = 524288 ns (roughly 525 us)
 <CODE ENDS>
 ]]></artwork>
@@ -402,19 +403,19 @@ LG_RANGE           // Log base 2 of the range of ramp [lg(ns)]
         <figure>
           <artwork><![CDATA[<CODE BEGINS>
 // Constants, either derived from input parameters or hard-coded
-T_RES                                     // Resolution of t_exp [ns]
-                                          // Convert units
-AGING = pow(2, (LG_AGING-30) ) * T_RES    // lg([B/s]) to [B/T_RES]
-CRITICALqL = CRITICALqL_us * 1000         // [us] to [ns]
-CRITICALqLSCORE = CRITICALqLSCORE_us * 1000 /T_RES // [us] to [T_RES]
+T_RES;                                    // Resolution of t_exp [ns]
+                                          // Convert units (approx)
+AGING = pow(2, (LG_AGING-30) ) * T_RES;   // lg([B/s]) to [B/T_RES]
+CRITICALqL = CRITICALqL_us * 1000;        // [us] to [ns]
+CRITICALqLSCORE = CRITICALqLSCORE_us * 1000/T_RES; // [us] to [T_RES]
 // Threshold for the q'ing score condition
-CRITICALqLPRODUCT = CRITICALqL * CRITICALqLSCORE
-qLSCORE_MAX = 5E9 / T_RES            // Max queuing score = 5 s
+CRITICALqLPRODUCT = CRITICALqL * CRITICALqLSCORE;
+qLSCORE_MAX = 5E9 / T_RES;           // Max queuing score = 5 s
 
 ATTEMPTS = 2; // Max attempts to pick a bucket (vendor-specific)
 BI_SIZE = 5;  // Bit-width of index number for non-default buckets
 NBUCKETS = pow(2, BI_SIZE);  // No. of non-default buckets
-MASK = NBUCKETS-1;           // convenient constant, filled with ones
+MASK = NBUCKETS-1;     // convenient constant, with BI_SIZE LSBs set
 
                        // Queue Protection exit states
 EXIT_SUCCESS  = 0;     // Forward the packet
@@ -423,14 +424,22 @@ EXIT_SANCTION = 1;     // Redirect the packet
 MAX_PROB      = 1; // For integer arithmetic, would use a large int
                    //  e.g., 2^31, to allow space for overflow
 MAXTH = MAXTH_us * 1000;   // Max marking threshold [ns]
+MAX_FRAME_SIZE = 2000;  // DOCSIS-wide constant [B]
 // Minimum marking threshold of 2 MTU for slow links [ns]
-FLOOR =  2 * 8 * MAX FRAME SIZE * 10^9 / MAX RATE;
+FLOOR =  2 * 8 * MAX_FRAME_SIZE * 10^9 / MAX_RATE;
 RANGE = (1 << LG_RANGE);      // Range of ramp [ns]
 MINTH = max ( MAXTH - RANGE, FLOOR);
 MAXTH = MINTH + RANGE;           // Max marking threshold [ns]
 <CODE ENDS>
 ]]></artwork>
         </figure>
+
+        <t>Throughout the peudocode, most variables are integers. The only
+        exceptions are floating point variables representing probabilities
+        (MAX_PROB and ProbNative) and the AGING parameter. In practice, these
+        floats would also typically be represented by integers that would be
+        upscaled for precision. The pseudocode omits overflow checking and it
+        would need to be made robust to non-default input parameters.</t>
 
         <t>The resolution for expressing time, T_RES, needs to be chosen to
         ensure that expiry times for buckets can represent times that are a
@@ -443,13 +452,13 @@ MAXTH = MINTH + RANGE;           // Max marking threshold [ns]
         <figure>
           <artwork><![CDATA[<CODE BEGINS>
 // Public variables:
-qdelay         // The current queuing delay of the LL queue [ns]
-probNative     // Native marking probability of LL queue within [0,1]
+qdelay;        // The current queuing delay of the LL queue [ns]
+probNative;    // Native marking probability of LL queue within [0,1]
 
 // External variables
-packet             // The structure holding packet header fields
-packet.size        // The size of the current packet [B]
-packet.uflow       // The flow identifier of the current packet
+packet;            // The structure holding packet header fields
+packet.size;       // The size of the current packet [B]
+packet.uflow;      // The flow identifier of the current packet
                    //  (e.g., 5-tuple or 4-tuple if IPSec)
 
 // Irrelevant details of DOCSIS function to return qdelay are removed
@@ -573,8 +582,6 @@ qprotect(packet, ...) {
    probNative = calcProbNative(qdelay);
 
    bckt_id = pick_bucket(packet.uflow);
-   // if (bckt_id->t_exp risks overflow)    // Details not shown
-   //    return EXIT_SANCTION;
    qLscore = fill_bucket(buckets[bckt_id], packet.size, probNative);
 
    // Determine whether to sanction packet
@@ -1123,9 +1130,7 @@ Arriving Packet's Flow
         <t>Although not supported in the DOCSIS specs, QProt could be extended
         to recognize that large numbers of redirected packets belong to the
         same flow. This might be detected when the bucket expiry time t_exp
-        exceeds a threshold, which could also conveniently prevent overflow of
-        the t_exp variable (see the qprotect() function in <xref
-        target="qp_qprotect"/>). Depending on policy and implementation
+        exceeds a threshold. Depending on policy and implementation
         capabilities, QProt could then install a classifier to redirect a
         whole flow into the Classic queue, with an idle timeout to remove
         stale classifiers. In these 'persistent offender' cases, QProt might
