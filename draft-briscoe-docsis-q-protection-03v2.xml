@@ -1315,28 +1315,29 @@ Arriving Packet's Flow
           <t>It might be considered that all the packets of persistently
           offending flows ought to be discarded rather than redirected.
           However, this is not recommended, because attack flows might be able
-          to pervert whole-flow discard turning it onto at least some innocent
-          flows. thus amplifying an attack that causes reordering into total
-          deletion of some innocent flows.</t>
+          to pervert whole-flow discard, turning it onto at least some
+          innocent flows. thus amplifying an attack that causes reordering
+          into total deletion of some innocent flows.</t>
         </section>
 
         <section anchor="qp_proc_exhaust"
                  title="Exhausting Processing Resources">
-          <t>The time needed to apply the QProt algorithm to each L packet is
-          small and intended not to take all the time available between each
-          of a run of fairly small packets. However, an attack could use
-          minimum size packets launched from multiple input interfaces into a
-          lower capacity output interface. Whether the QProt algorithm is
-          vulnerable to processor exhaustion will depend on the specific
-          implementation.</t>
+          <t>The processing time needed to apply the QProt algorithm to each L
+          packet is small and intended not to take all the time available
+          between each of a run of fairly small packets. However, an attack
+          could use minimum size packets launched from multiple input
+          interfaces into a lower capacity output interface. Whether the QProt
+          algorithm is vulnerable to processor exhaustion will depend on the
+          specific implementation.</t>
 
           <t>Addition of a capability to redirect persistently offending flows
           from L to C would be the most effective way to reduce the per-packet
-          processing cost of the QProt algorithm. As already mentioned in
-          <xref target="qp_flow-state_exhaust"/>, this would also be an
-          effective way to mitigate flow-state exhaustion attacks. Further
-          discussion of whole-flow redirection is outside the scope of the
-          present document.</t>
+          processing cost of the QProt algorithm, when under attack. As
+          already mentioned in <xref target="qp_flow-state_exhaust"/>, this
+          would also be an effective way to mitigate flow-state exhaustion
+          attacks. Further discussion of whole-flow redirection is outside the
+          scope of the present document, but briefly discussed at the end of
+          <xref target="qp_rationale_reclassify"/>. </t>
         </section>
       </section>
     </section>
