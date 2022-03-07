@@ -514,7 +514,7 @@ qdelayL(...)      // Returns current delay of the low latency Q [ns]
 struct bucket { // The leaky bucket structure to hold per-flow state
    id;          // identifier (e.g., 5-tuple) of flow using bucket
    t_exp;       // expiry time in units of T_RES
-                // (t_exp - now) = flow's normalized q'ing score
+                // (t_exp - now) = flow's transformed q'ing score
 };
 struct bucket buckets[NBUCKETS+1];
 <CODE ENDS>
@@ -716,9 +716,9 @@ pick_bucket(uflw) {
           <t>The fill_bucket() function both accumulates and ages the queuing
           score over time, as outlined in <xref
           target="qp_approach_mechanism"/>. To make aging the score efficient,
-          the increment of the queuing score is normalized to units of time by
-          dividing by AGING, so that the result represents the new expiry time
-          of the flow.</t>
+          the increment of the queuing score is transformed into units of time
+          by dividing by AGING, so that the result represents the new expiry
+          time of the flow.</t>
 
           <t>Given that probNative is already used to select which packets to
           ECN-mark, it might be thought that the queuing score could just be
@@ -937,14 +937,14 @@ calcProbNative(qdelay){
       </section>
 
       <section anchor="qp_rationale_normalize"
-               title="Rationale for Normalized Queuing Score">
+               title="Rationale for Transformed Queuing Score">
         <t>The QProt algorithm holds a flow's queuing score state in a
         structure called a bucket, because of its similarity to a classic
         leaky bucket (except the contents of the bucket does not represent
         bytes).</t>
 
         <figure anchor="qp_fig_qscore_normalize"
-                title="Normalization of Queuing Score">
+                title="Transformation of Queuing Score">
           <artwork><![CDATA[probNative * pkt_sz   probNative * pkt_sz / AGING
           |                        |
        |  V  |                  |  V  |
@@ -964,7 +964,7 @@ calcProbNative(qdelay){
         Dt is the difference between the times when the scores of the current
         and previous packets were processed.</t>
 
-        <t>A normalized equivalent of this token bucket is shown on the right
+        <t>A transformed equivalent of this token bucket is shown on the right
         of <xref target="qp_fig_qscore_normalize"/>, dividing both the input
         and output by the constant AGING rate. The result is a bucket-depth
         that represents time and it drains at the rate that time passes.</t>
