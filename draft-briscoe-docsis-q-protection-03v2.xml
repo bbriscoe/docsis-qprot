@@ -27,7 +27,7 @@
 <?rfc subcompact="no" ?>
 <!-- keep one blank line between list items -->
 <!-- end of list of popular I-D processing instructions -->
-<rfc category="info" docName="draft-briscoe-docsis-q-protection-02"
+<rfc category="info" docName="draft-briscoe-docsis-q-protection-03"
      ipr="trust200902" obsoletes="">
   <!-- category values: std, bcp, info, exp, and historic
     ipr values: trust200902, noModificationTrust200902, noDerivativesTrust200902,
@@ -94,12 +94,12 @@
       a threshold level of delay, the queue protection algorithm can rapidly
       detect the flows most likely to be responsible. It can then prevent harm
       to other traffic in the low latency queue by ejecting selected packets
-      (or all packets) of these flows. The document is designed for three
-      types of audience: a) congestion control designers who need to
-      understand how to keep on the 'good' side of the algorithm; b)
-      implementers of the algorithm who want to understand it in more depth;
-      and c) designers of algorithms with similar goals, perhaps for
-      non-DOCSIS scenarios.</t>
+      (or all packets) of these flows. The document is designed for four types
+      of audience: a) congestion control designers who need to understand how
+      to keep on the 'good' side of the algorithm; b) implementers of the
+      algorithm who want to understand it in more depth; and c) designers of
+      algorithms with similar goals, perhaps for non-DOCSIS scenarios; d)
+      researchers interested in evaluating the algorithm.</t>
     </abstract>
   </front>
 
@@ -121,23 +121,24 @@
       <t>Low queuing delay depends on hosts sending their data smoothly,
       either at low rate or responding to explicit congestion notifications
       (ECN). So low queuing latency is something hosts create themselves, not
-      something the network gives them. Therefore, self-interest gives no
-      incentive for flows to mis-mark their packets for the low latency queue.
-      However, traffic from an application that does not behave in a
-      non-queue-building way might erroneously be classified into a low
-      latency queue, whether accidentally or maliciously. QProt protects other
-      traffic in the low latency queue from the harm due to excess queuing
-      that would otherwise be caused by such anomalous behaviour.</t>
+      something the network gives them. This tends to ensure that
+      self-interest alone does not drive flows to mis-mark their packets for
+      the low latency queue. However, traffic from an application that does
+      not behave in a non-queue-building way might erroneously be classified
+      into a low latency queue, whether accidentally or maliciously. QProt
+      protects other traffic in the low latency queue from the harm due to
+      excess queuing that would otherwise be caused by such anomalous
+      behaviour.</t>
 
       <t>In normal scenarios without misclassified traffic, QProt is not
       expected to intervene at all in the classification or forwarding of
       packets.</t>
 
       <t>An overview of how low latency support has been added to DOCSIS
-      technology is given in <xref target="I-D.white-tsvwg-lld"/>. In each
-      direction of a DOCSIS link (upstream and downstream), there are two
-      queues: one for Low Latency and one for Classic traffic, in an
-      arrangement similar to the IETF's Coupled DualQ AQM <xref
+      technology is given in <xref target="LLD"/>. In each direction of a
+      DOCSIS link (upstream and downstream), there are two queues: one for Low
+      Latency and one for Classic traffic, in an arrangement similar to the
+      IETF's Coupled DualQ AQM <xref
       target="I-D.ietf-tsvwg-aqm-dualq-coupled"/>. The two queues enable a
       transition from 'Classic' to 'Scalable' congestion control so that low
       latency can become the norm for any application, including ones seeking
@@ -150,8 +151,8 @@
       Latency queue. Therefore, in the upstream QProt is located on the cable
       modem (CM), and in the downstream it is located on the cable CMTS (CM
       Termination System). If an arriving packet triggers queue protection,
-      the QProt algorithm reclassifies the packet from the Low Latency queue
-      into the Classic queue.</t>
+      the QProt algorithm ejects the packet from the Low Latency queue and
+      reclassifies it into the Classic queue.</t>
 
       <t>If QProt is used in settings other than DOCSIS links, it would be a
       simple matter to detect queue-building flows by using slightly different
@@ -178,10 +179,8 @@
         <t>The core of the document is the walk-through of the DOCSIS QProt
         algorithm's pseudocode in <xref target="qp_walk-through"/>.</t>
 
-        <t>Prior to that, two brief sections provide a "bluffer's guide to
-        QProt" which should suffice for those who do not need the details or
-        the insights. <xref target="qp_approach"/> summarizes the approach
-        used in the algorithm. Then <xref target="qp_nec_flow_behaviour"/>
+        <t>Prior to that, <xref target="qp_approach"/> summarizes the approach
+        used in the algorithm, then <xref target="qp_nec_flow_behaviour"/>
         considers QProt from the perspective of the end-system, by defining
         the behaviour that a flow needs to comply with to avoid the QProt
         algorithm ejecting its packets from the low latency queue.</t>
@@ -258,9 +257,10 @@
       <section anchor="qp_approach_mechanism" title="Mechanism">
         <t>The algorithm maintains per-flow-state, where 'flow' usually means
         an end-to-end (layer-4) 5-tuple. The flow-state consists of a queuing
-        score normalized to also represent the flow-state's own expiry time
-        (explained in <xref target="qp_rationale_normalize"/>). A higher
-        queuing score pushes out the expiry time further.</t>
+        score that decays over time. Indeed it is transformed into time units
+        so that it represents the flow-state's own expiry time (explained in
+        <xref target="qp_rationale_normalize"/>). A higher queuing score
+        pushes out the expiry time further.</t>
 
         <t>Non-queue-building flows tend to release their flow-state rapidly
         --- it usually expires reasonably early in the gap between the packets
@@ -269,47 +269,60 @@
         flow state persistently.</t>
 
         <t>The simplicity and effectiveness of the algorithm is due to the
-        definition of the queuing score. It uses the internal variable from
-        the native AQM, probNative, that determines the ECN marking
-        probability of the low latency queue alone (Classic queuing is not
-        relevant). The actual DOCSIS QProt algorithm is defined using integer
-        arithmetic, but in the floating point arithmetic used in this
-        document, (0 &lt;= probNative &lt;= 1). The queueing score algorithm
-        accumulates the size of each arriving packet of a flow scaled by the
-        value of probNative at the time.</t>
+        definition of the queuing score. The queueing score represents the
+        share of blame for queuing that each flow bears. The scoring algorithm
+        uses the same internal variable, probNative, that the AQM for the low
+        latency queue uses to ECN-mark packets (Classic or coupled queuing is
+        not relevant). In this way, the queuing score accumulates the size of
+        each arriving packet of a flow, but scaled by the value of probNative
+        (in the range 0 to 1) at the instant the packet arrives. So a flow's
+        score accumulates faster, the higher the degree of queuing and the
+        faster that the flow's packets arrive when there is queuing. <xref
+        target="qp_rationale_not_throughput"/> explains further why this score
+        represents blame for queuing.</t>
 
         <t>The algorithm as described so far would accumulate a number that
-        would rise at the so-called congestion-rate of the flow,
-        i.e.,&nbsp;the rate at which the flow is contributing to congestion,
-        or the rate at which the AQM is forwarding bytes of the flow that are
-        ECN marked. However, rather than growing continually, the queuing
-        score is also reduced (or 'aged') at a constant rate. This gives each
-        flow an allowed congestion rate, which is justified in <xref
-        target="qp_rationale_aging"/>.</t>
+        would rise at the so-called congestion-rate of the flow (see
+        Terminology in <xref target="l4sds_Terminology"/>), i.e.,&nbsp;the
+        rate at which the flow is contributing to congestion, or the rate at
+        which the AQM is forwarding bytes of the flow that are ECN marked.
+        However, rather than growing continually, the queuing score is also
+        reduced (or 'aged') at a constant rate. This is because it is
+        legitimate for capacity-seeking flows to induce a continuous low level
+        of congestion in order to track available capacity. <xref
+        target="qp_rationale_aging"/> explains why this allowance can be set
+        to the same constant for any scalable flow, whatever its bit rate.</t>
 
-        <t>In practice, the queuing score is normalized into time units (so
-        that it represents the expiry time of the flow state, as already
-        discussed above). Then it does not need to be explicitly aged, because
-        the natural passage of time implicitly 'ages' an expiry time
-        (explained in <xref target="qp_rationale_normalize"/>).</t>
+        <t>For implementation efficiency, the queuing score is transformed
+        into time units so that it represents the expiry time of the flow
+        state (as already discussed above). Then it does not need to be
+        explicitly aged, because the natural passage of time implicitly 'ages'
+        an expiry time. The transformation into time units simply involves
+        dividing the queuing score of each packet by the constant aging rate
+        (explained further in <xref target="qp_rationale_normalize"/>).</t>
       </section>
 
       <section anchor="qp_approach_policy" title="Policy">
-        <t>The algorithm uses the queuing score to determine whether to eject
-        each packet only at the time it first arrives. This limits the
-        policies available. For instance, when queueing delay exceeds a
-        threshold, it is not possible to eject a packet from the flow with the
-        highest queuing scoring, because that would involve searching the
-        queue for such a packet (if indeed one was still in the queue).
-        Nonetheless, it is still possible to develop a policy that protects
-        the low latency of the queue by making the queuing score threshold
-        stricter the greater the excess of queuing delay relative to the
-        threshold (explained in <xref target="qp_rationale_conditions"/>).</t>
+        <section title="Policy Conditions">
+          <t>The algorithm uses the queuing score to determine whether to
+          eject each packet only at the time it first arrives. This limits the
+          policies available. For instance, when queueing delay exceeds a
+          threshold, it is not possible to eject a packet from the flow with
+          the highest queuing scoring, because that would involve searching
+          the queue for such a packet (if indeed one was still in the queue).
+          Nonetheless, it is still possible to develop a policy that protects
+          the low latency of the queue by making the queuing score threshold
+          stricter the greater the excess of queuing delay relative to the
+          threshold (explained in <xref
+          target="qp_rationale_conditions"/>).</t>
+        </section>
 
-        <t>In the DOCSIS QProt spec at the time of writing, when the policy
-        conditions are met the action taken to protect the low latency queue
-        is to reclassify a packet into the Classic queue (justified in <xref
-        target="qp_rationale_reclassify"/>).</t>
+        <section title="Policy Action">
+          <t>In the DOCSIS QProt spec at the time of writing, when the policy
+          conditions are met the action taken to protect the low latency queue
+          is to reclassify a packet into the Classic queue (justified in <xref
+          target="qp_rationale_reclassify"/>).</t>
+        </section>
       </section>
     </section>
 
@@ -340,13 +353,14 @@
       target="I-D.ietf-tsvwg-nqb"/>, which the DOCSIS specs support, or an
       operator can use various other local classifiers.</t>
 
-      <t>The QProt algorithm is driven from the same variable that drives the
-      ECN marking probability in the low latency queue (see the Immediate
-      Active Queue Management Annex in <xref target="DOCSIS"/>). The algorithm
-      that calculates this internal variable is run on the arrival of every
-      packet, whether it is ECN-capable or not, so that it can be used by the
-      QProt algorithm. But the variable is only used to ECN-mark packets that
-      are ECN-capable.</t>
+      <t>As already explained in <xref target="qp_approach_mechanism"/>, the
+      QProt algorithm is driven from the same variable that drives the ECN
+      marking probability in the low latency queue (see the Immediate Active
+      Queue Management Annex in <xref target="DOCSIS"/>). The algorithm that
+      calculates this internal variable is run on the arrival of every packet,
+      whether it is ECN-capable or not, so that it can be used by the QProt
+      algorithm. But the variable is only used to ECN-mark packets that are
+      ECN-capable.</t>
 
       <t>Not only does this dual use of the variable improve processing
       efficiency, but it also makes the basis of the QProt algorithm visible
@@ -436,10 +450,11 @@ MAXTH = MINTH + RANGE;           // Max marking threshold [ns]
 
         <t>Throughout the peudocode, most variables are integers. The only
         exceptions are floating point variables representing probabilities
-        (MAX_PROB and ProbNative) and the AGING parameter. In practice, these
-        floats would also typically be represented by integers that would be
-        upscaled for precision. The pseudocode omits overflow checking and it
-        would need to be made robust to non-default input parameters.</t>
+        (MAX_PROB and ProbNative) and the AGING parameter. The actual DOCSIS
+        QProt algorithm is defined using integer arithmetic, but in the
+        floating point arithmetic used in this document, (0 &lt;= probNative
+        &lt;= 1). Also, the pseudocode omits overflow checking and it would
+        need to be made robust to non-default input parameters.</t>
 
         <t>The resolution for expressing time, T_RES, needs to be chosen to
         ensure that expiry times for buckets can represent times that are a
@@ -1170,6 +1185,64 @@ Arriving Packet's Flow
       <t>This specification contains no IANA considerations.</t>
     </section>
 
+    <section anchor="qp_impl_status" title="Implementation Status">
+      <texttable>
+        <ttcol>Implementation name:</ttcol>
+
+        <ttcol>DOCSIS models for ns-3</ttcol>
+
+        <c>Organization</c>
+
+        <c>CableLabs</c>
+
+        <c>Web page</c>
+
+        <c>https://apps.nsnam.org/app/docsis-ns3/</c>
+
+        <c>Description</c>
+
+        <c>ns-3 simulation models developed and used in support of the Low
+        Latency DOCSIS development, including models of Dual Queue Coupled
+        AQM, Queue Protection, and the DOCSIS MAC</c>
+
+        <c>Maturity</c>
+
+        <c>Simulation models that can also be used in emulation mode in a
+        testbed context</c>
+
+        <c>Coverage</c>
+
+        <c>Complete implementation of Annex P of DOCSIS 3.1</c>
+
+        <c>Version</c>
+
+        <c>DOCSIS 3.1, version I21;
+        https://www.cablelabs.com/specifications/CM-SP-MULPIv3.1?v=I21</c>
+
+        <c>Licence</c>
+
+        <c>GPLv2</c>
+
+        <c>Contact</c>
+
+        <c>via web page</c>
+
+        <c>Last Impl'n update</c>
+
+        <c>Mar 2022</c>
+
+        <c>Information valid at</c>
+
+        <c>6 Mar 2022</c>
+      </texttable>
+
+      <t>There are also a number of closed source implementations, including 2
+      cable modem implementations written by different chipset manufacturers,
+      and one CMTS implementation by a third manufacturer. These, as well as
+      the ns-3 implementation, have passed the full suite of compliance tests
+      developed by CableLabs.</t>
+    </section>
+
     <section anchor="l4sds_Security_Considerations"
              title="Security Considerations">
       <t>The whole of this document concerns traffic security. It considers
@@ -1177,27 +1250,110 @@ Arriving Packet's Flow
       comply with the non-queue-building behaviour required to use a shared
       low latency queue, whether accidentally or maliciously.</t>
 
-      <t>The algorithm has been designed to fail gracefully in the face of
-      traffic crafted to overrun the resources used for the algorithm's own
-      processing and flow state. This means that non-queue-building flows will
-      always be less likely to be sanctioned than queue-building flows. But an
-      attack could be contrived to deplete resources in such a way that the
-      proportion of innocent (non-queue-building) flows that are incorrectly
-      sanctioned could increase.</t>
-
       <t>Section 8.2 of the L4S architecture <xref
       target="I-D.ietf-tsvwg-l4s-arch"/> introduces the problem of maintaining
       low latency by either self-restraint or enforcement, and places DOCSIS
       queue protection in context within a wider set of approaches to the
       problem.</t>
+
+      <section anchor="qp_resource_exhaust"
+               title="Resource Exhaustion Attacks">
+        <t>The algorithm has been designed to fail gracefully in the face of
+        traffic crafted to overrun the resources used for the algorithm's own
+        processing and flow state. This means that non-queue-building flows
+        will always be less likely to be sanctioned than queue-building flows.
+        But an attack could be contrived to deplete resources in such a way
+        that the proportion of innocent (non-queue-building) flows that are
+        incorrectly sanctioned could increase.</t>
+
+        <t>Incorrect sanctioning is intended not to be catastrophic; it
+        results in more packets from well-behaved flows being redirected into
+        the Classic queue, thus introducing more reordering into innocent
+        flows.</t>
+
+        <section anchor="qp_flow-state_exhaust"
+                 title="Exhausting Flow-State Storage">
+          <t>To exhaust the number of buckets, the most efficient attack is to
+          send enough long-running attack flows to increase the chance that an
+          arriving flow will not find an available bucket, and therefore have
+          to share the 'dreggs' bucket. For instance, if ATTEMPTS=2 and
+          NBUCKETS=32, it requires about 94 attack flows, each using different
+          port numbers, to increase the probability to 99% that an arriving
+          flow will have to share the dreggs, where it will share a high
+          degree of redirection into the C queue with the remainder of the
+          attack flows.</t>
+
+          <t>For an attacker to keep buckets busy, it is more efficient to
+          hold onto them by cycling regularly through a set of port numbers
+          (94 in the above example), rather than to keep occupying and
+          releasing buckets with single packet flows across a much larger
+          number of ports.</t>
+
+          <t>During such an attack, the coupled marking probability will have
+          saturated at 100%. So, to hold a bucket, the rate of an attack flow
+          needs to be no less than the AGING rate of each bucket; 4Mb/s by
+          default. However, for an attack flow to be sure to hold on to its
+          bucket, it would need to send somewhat faster. Thus an attack with
+          100 flows would need a total force of more than 100 * 4Mb/s =
+          400Mb/s.</t>
+
+          <t>This attack can be mitigated (but not prevented) by increasing
+          the number of buckets. The required attack force scales linearly
+          with the number of buckets, NBUCKETS. So, if NBUCKETS were doubled
+          to 64, twice as many 4Mb/s flows would be needed to maintain the
+          same impact on innocent flows.</t>
+
+          <t>Probably the most effective mitigation would be to implement
+          redirection of whole-flows once enough of the individual packets of
+          a certain offending flow had been redirected. This would free up the
+          buckets used to maintain the per-packet queuing score of persistent
+          offenders. Whole-flow redirection is outside the scope of the
+          current version of the QProt algorithm specified here, but it is
+          briefly discussed at the end of <xref
+          target="qp_rationale_reclassify"/>. </t>
+
+          <t>It might be considered that all the packets of persistently
+          offending flows ought to be discarded rather than redirected.
+          However, this is not recommended, because attack flows might be able
+          to pervert whole-flow discard turning it onto at least some innocent
+          flows. thus amplifying an attack that causes reordering into total
+          deletion of some innocent flows.</t>
+        </section>
+
+        <section anchor="qp_proc_exhaust"
+                 title="Exhausting Processing Resources">
+          <t>The time needed to apply the QProt algorithm to each L packet is
+          small and intended not to take all the time available between each
+          of a run of fairly small packets. However, an attack could use
+          minimum size packets launched from multiple input interfaces into a
+          lower capacity output interface. Whether the QProt algorithm is
+          vulnerable to processor exhaustion will depend on the specific
+          implementation.</t>
+
+          <t>Addition of a capability to redirect persistently offending flows
+          from L to C would be the most effective way to reduce the per-packet
+          processing cost of the QProt algorithm. As already mentioned in
+          <xref target="qp_flow-state_exhaust"/>, this would also be an
+          effective way to mitigate flow-state exhaustion attacks. Further
+          discussion of whole-flow redirection is outside the scope of the
+          present document.</t>
+        </section>
+      </section>
+    </section>
+
+    <section title="Comments Solicited">
+      <t>Evaluation and assessment of the algorithm by researchers is
+      solicited. Comments and questions are also encouraged and welcome. They
+      can be addressed to the authors.</t>
     </section>
 
     <section title="Acknowledgements">
-      <t>Thanks to Tom Henderson and to Adrian Farrel for their reviews of
-      this document. The design of the QProt algorithm and the settings of the
-      parameters benefited from discussion and critique from the participants
-      of the cable industry working group on Low Latency DOCSIS. CableLabs
-      funded Bob Briscoe's initial work on this document.</t>
+      <t>Thanks to Tom Henderson, Magnus Westerlund, David Black and Adrian
+      Farrel for their reviews of this document. The design of the QProt
+      algorithm and the settings of the parameters benefited from discussion
+      and critique from the participants of the cable industry working group
+      on Low Latency DOCSIS. CableLabs funded Bob Briscoe's initial work on
+      this document.</t>
     </section>
   </middle>
 
@@ -1285,9 +1441,34 @@ Arriving Packet's Flow
 
       <?rfc include='reference.I-D.ietf-tsvwg-l4s-arch'?>
 
-      <?rfc include="reference.I-D.white-tsvwg-lld" ?>
-
       <?rfc include='reference.I-D.briscoe-iccrg-prague-congestion-control'?>
+
+      <reference anchor="LLD"
+                 target="https://cablela.bs/low-latency-docsis-technology-overview-february-2019">
+        <front>
+          <title>Low Latency DOCSIS: Technology Overview</title>
+
+          <author fullname="Greg White" initials="G." surname="White">
+            <organization>CableLabs</organization>
+          </author>
+
+          <author fullname="Karthik Sundaresan" initials="K."
+                  surname="Sundaresan">
+            <organization>CableLabs</organization>
+          </author>
+
+          <author fullname="Bob Briscoe" initials="B." surname="Briscoe">
+            <organization>CableLabs</organization>
+          </author>
+
+          <date day="" month="February" year="2019"/>
+        </front>
+
+        <seriesInfo name="CableLabs White Paper" value=""/>
+
+        <format target="https://cablela.bs/low-latency-docsis-technology-overview-february-2019"
+                type="PDF"/>
+      </reference>
 
       <reference anchor="ScalingCC" target="https://arxiv.org/abs/1904.07605">
         <front>
