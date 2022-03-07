@@ -449,7 +449,7 @@ MAXTH = MINTH + RANGE;           // Max marking threshold [ns]
 
         <t>Throughout the pseudocode, most variables are integers. The only
         exceptions are floating point variables representing probabilities
-        (MAX_PROB and ProbNative) and the AGING parameter. The actual DOCSIS
+        (MAX_PROB and probNative) and the AGING parameter. The actual DOCSIS
         QProt algorithm is defined using integer arithmetic, but in the
         floating point arithmetic used in this document, (0 &lt;= probNative
         &lt;= 1). Also, the pseudocode omits overflow checking and it would
