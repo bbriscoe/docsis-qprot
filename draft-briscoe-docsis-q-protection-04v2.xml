@@ -1348,12 +1348,12 @@ Arriving Packet's Flow
     </section>
 
     <section title="Acknowledgements">
-      <t>Thanks to Tom Henderson, Magnus Westerlund, David Black and Adrian
-      Farrel for their reviews of this document. The design of the QProt
-      algorithm and the settings of the parameters benefited from discussion
-      and critique from the participants of the cable industry working group
-      on Low Latency DOCSIS. CableLabs funded Bob Briscoe's initial work on
-      this document.</t>
+      <t>Thanks to Tom Henderson, Magnus Westerlund, David Black, Adrian
+      Farrel and Eliot Lear for their reviews of this document. The design of
+      the QProt algorithm and the settings of the parameters benefited from
+      discussion and critique from the participants of the cable industry
+      working group on Low Latency DOCSIS. CableLabs funded Bob Briscoe's
+      initial work on this document.</t>
     </section>
   </middle>
 
