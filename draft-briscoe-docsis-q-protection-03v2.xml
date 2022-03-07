@@ -817,7 +817,7 @@ calcProbNative(qdelay){
         discrete event when a packet arrives by the packet's size, which
         accumulates faster the more packets arrive within each unit of time.
         The level of congestion is normalized to a dimensionless number
-        between 0 and 1 (nativeProb). This fractional congestion level is used
+        between 0 and 1 (probNative). This fractional congestion level is used
         in preference to a direct dependence on queuing delay for two
         reasons:<list style="symbols">
             <t>to be able to ignore very low levels of queuing that contribute
@@ -1105,10 +1105,10 @@ Arriving Packet's Flow
         <t>When the DOCSIS QProt algorithm deems that it is necessary to eject
         a packet to protect the Low Latency queue, it redirects the packet to
         the Classic queue. In the Low Latency DOCSIS architecture (as in
-        Coupled DualQ AQMs generally), a scheduler is arranged to give the Low
-        Latency Queue conditional priority over the Classic queue, for
-        instance using weighted round robin (WRR) with a high weight in favour
-        of the Low Latency queue.</t>
+        Coupled DualQ AQMs generally), the Classic queue is expected to
+        frequently have a larger backlog of packets, caused by classic
+        congestion controllers interacting with a classic AQM (which has a
+        latency target of 10ms) as well as other bursty traffic.</t>
 
         <t>Therefore, typically, an ejected packet will experience higher
         queuing delay than it would otherwise, and it could be re-ordered
@@ -1233,7 +1233,7 @@ Arriving Packet's Flow
 
         <c>Information valid at</c>
 
-        <c>6 Mar 2022</c>
+        <c>7 Mar 2022</c>
       </texttable>
 
       <t>There are also a number of closed source implementations, including 2
