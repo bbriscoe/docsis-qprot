@@ -157,11 +157,10 @@
       <t>If QProt is used in settings other than DOCSIS links, it would be a
       simple matter to detect queue-building flows by using slightly different
       conditions, and/or to trigger a different action as a consequence, as
-      appropriate for the scenario, e.g.,&nbsp;dropping instead of
-      reclassifying packets or perhaps accumulating a second per-flow score to
-      decide whether to redirect a whole flow rather than just certain
-      packets. Such work is for future study and out of scope of the present
-      document.</t>
+      appropriate for the scenario, e.g., dropping instead of reclassifying
+      packets or perhaps accumulating a second per-flow score to decide
+      whether to redirect a whole flow rather than just certain packets. Such
+      work is for future study and out of scope of the present document.</t>
 
       <t>The algorithm is based on a rigorous approach to quantifying how much
       each flow contributes to congestion, which is used in economics to
@@ -248,7 +247,7 @@
               should be taken to avert the risk of queuing delay becoming
               excessive;</t>
 
-              <t>The actions determine how this risk is averted, e.g.,&nbsp;by
+              <t>The actions determine how this risk is averted, e.g., by
               redirecting packets from a flow into another queue, or to
               reclassify a whole flow that seems to be misclassified.</t>
             </list></t>
@@ -448,7 +447,7 @@ MAXTH = MINTH + RANGE;           // Max marking threshold [ns]
 ]]></artwork>
         </figure>
 
-        <t>Throughout the peudocode, most variables are integers. The only
+        <t>Throughout the pseudocode, most variables are integers. The only
         exceptions are floating point variables representing probabilities
         (MAX_PROB and ProbNative) and the AGING parameter. The actual DOCSIS
         QProt algorithm is defined using integer arithmetic, but in the
@@ -1164,10 +1163,10 @@ Arriving Packet's Flow
       <t>This choice of identifier for grouping is pragmatic with no
       scientific basis. All the packets of a flow certainly pass between the
       same two endpoints. But some applications might initiate multiple flows
-      between the same end-points, e.g.,&nbsp;for media, control, data, etc.
-      Others might use common flow identifiers for all these streams. Also, a
-      user might group multiple application flows within the same encrypted
-      VPN between the same layer-4 tunnel end-points. And even if there were a
+      between the same end-points, e.g., for media, control, data, etc. Others
+      might use common flow identifiers for all these streams. Also, a user
+      might group multiple application flows within the same encrypted VPN
+      between the same layer-4 tunnel end-points. And even if there were a
       one-to-one mapping between flows and applications, there is no reason to
       believe that the rate at which congestion can be caused ought to be
       allocated on a per application flow basis.</t>
@@ -1268,7 +1267,7 @@ Arriving Packet's Flow
 
         <t>Incorrect sanctioning is intended not to be catastrophic; it
         results in more packets from well-behaved flows being redirected into
-        the Classic queue, thus introducing more reordering into innocent
+        the Classic queue; thus introducing more reordering into innocent
         flows.</t>
 
         <section anchor="qp_flow-state_exhaust"
@@ -1276,12 +1275,12 @@ Arriving Packet's Flow
           <t>To exhaust the number of buckets, the most efficient attack is to
           send enough long-running attack flows to increase the chance that an
           arriving flow will not find an available bucket, and therefore have
-          to share the 'dreggs' bucket. For instance, if ATTEMPTS=2 and
+          to share the 'dregs' bucket. For instance, if ATTEMPTS=2 and
           NBUCKETS=32, it requires about 94 attack flows, each using different
           port numbers, to increase the probability to 99% that an arriving
-          flow will have to share the dreggs, where it will share a high
-          degree of redirection into the C queue with the remainder of the
-          attack flows.</t>
+          flow will have to share the dregs, where it will share a high degree
+          of redirection into the C queue with the remainder of the attack
+          flows.</t>
 
           <t>For an attacker to keep buckets busy, it is more efficient to
           hold onto them by cycling regularly through a set of port numbers
