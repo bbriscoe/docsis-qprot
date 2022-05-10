@@ -202,11 +202,12 @@
 
             <t hangText="CMTS:">CM Termination System</t>
 
-            <t hangText="Congestion-rate:">The rate at which a flow induces
-            ECN-marked (or dropped) bytes, where an ECN-mark on a packet is
-            defined as marking all the packet's bytes. Congestion-bit-rate and
-            congestion-volume were introduced in <xref target="RFC7713"/> and
-            <xref target="RFC6789"/>.</t>
+            <t hangText="Congestion-rate:">The transmission rate of bits or
+            bytes contained within packets of a flow that have the CE
+            codepoint set in the IP-ECN field <xref target="RFC3168"/>
+            (including IP headers unless specified otherwise).
+            Congestion-bit-rate and congestion-volume were introduced in <xref
+            target="RFC7713"/> and <xref target="RFC6789"/>.</t>
 
             <t hangText="DOCSIS:">Data Over Cable System Interface
             Specification. "DOCSIS" is a registered trademark of Cable
