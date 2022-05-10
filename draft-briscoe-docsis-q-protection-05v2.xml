@@ -27,7 +27,7 @@
 <?rfc subcompact="no" ?>
 <!-- keep one blank line between list items -->
 <!-- end of list of popular I-D processing instructions -->
-<rfc category="info" docName="draft-briscoe-docsis-q-protection-04"
+<rfc category="info" docName="draft-briscoe-docsis-q-protection-05"
      ipr="trust200902" obsoletes="">
   <!-- category values: std, bcp, info, exp, and historic
     ipr values: trust200902, noModificationTrust200902, noDerivativesTrust200902,
@@ -137,8 +137,8 @@
       <t>An overview of how low latency support has been added to DOCSIS
       technology is given in <xref target="LLD"/>. In each direction of a
       DOCSIS link (upstream and downstream), there are two queues: one for Low
-      Latency and one for Classic traffic, in an arrangement similar to the
-      IETF's Coupled DualQ AQM <xref
+      Latency (LL) and one for Classic traffic, in an arrangement similar to
+      the IETF's Coupled DualQ AQM <xref
       target="I-D.ietf-tsvwg-aqm-dualq-coupled"/>. The two queues enable a
       transition from 'Classic' to 'Scalable' congestion control so that low
       latency can become the norm for any application, including ones seeking
@@ -500,7 +500,7 @@ qdelayL(...)      // Returns current delay of the low latency Q [ns]
                 Security Payload (ESP) <xref target="RFC4303"/>.</t>
               </list></t>
           </list>The Microflow Classification section of the Queue Protection
-        Annex of the DOCSIS spec. <xref target="DOCSIS"/> defines various
+        Annex of the DOCSIS spec.&nbsp;<xref target="DOCSIS"/> defines various
         strategies to find these headers by skipping extension headers or
         encapsulations. If they cannot be found, the spec.&nbsp;defines
         various less-specific 3-tuples that would be used. The DOCSIS
@@ -1316,7 +1316,7 @@ Arriving Packet's Flow
           offending flows ought to be discarded rather than redirected.
           However, this is not recommended, because attack flows might be able
           to pervert whole-flow discard, turning it onto at least some
-          innocent flows. thus amplifying an attack that causes reordering
+          innocent flows, thus amplifying an attack that causes reordering
           into total deletion of some innocent flows.</t>
         </section>
 
