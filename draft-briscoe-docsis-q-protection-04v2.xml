@@ -1428,6 +1428,8 @@ Arriving Packet's Flow
     </references>
 
     <references title="Informative References">
+      <?rfc include="reference.RFC.3168" ?>
+
       <?rfc include="reference.RFC.4303" ?>
 
       <?rfc include="reference.RFC.6789" ?>
