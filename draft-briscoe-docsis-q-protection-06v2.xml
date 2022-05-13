@@ -120,15 +120,16 @@
 
       <t>Low queuing delay depends on hosts sending their data smoothly,
       either at low rate or responding to explicit congestion notifications
-      (ECN). So low queuing latency is something hosts create themselves, not
-      something the network gives them. This tends to ensure that
-      self-interest alone does not drive flows to mis-mark their packets for
-      the low latency queue. However, traffic from an application that does
-      not behave in a non-queue-building way might erroneously be classified
-      into a low latency queue, whether accidentally or maliciously. QProt
-      protects other traffic in the low latency queue from the harm due to
-      excess queuing that would otherwise be caused by such anomalous
-      behaviour.</t>
+      (ECN <xref target="RFC8311"/>, <xref
+      target="I-D.ietf-tsvwg-ecn-l4s-id"/>). So low queuing latency is
+      something hosts create themselves, not something the network gives them.
+      This tends to ensure that self-interest alone does not drive flows to
+      mis-mark their packets for the low latency queue. However, traffic from
+      an application that does not behave in a non-queue-building way might
+      erroneously be classified into a low latency queue, whether accidentally
+      or maliciously. QProt protects other traffic in the low latency queue
+      from the harm due to excess queuing that would otherwise be caused by
+      such anomalous behaviour.</t>
 
       <t>In normal scenarios without misclassified traffic, QProt is not
       expected to intervene at all in the classification or forwarding of
@@ -272,12 +273,14 @@
         definition of the queuing score. The queueing score represents the
         share of blame for queuing that each flow bears. The scoring algorithm
         uses the same internal variable, probNative, that the AQM for the low
-        latency queue uses to ECN-mark packets (Classic or coupled queuing is
-        not relevant). In this way, the queuing score accumulates the size of
-        each arriving packet of a flow, but scaled by the value of probNative
-        (in the range 0 to 1) at the instant the packet arrives. So a flow's
-        score accumulates faster, the higher the degree of queuing and the
-        faster that the flow's packets arrive when there is queuing. <xref
+        latency queue uses to ECN-mark packets (the other two forms of
+        marking, Classic and coupled, are driven by Classic traffic and
+        therefore not relevant to protection of the LL queue). In this way,
+        the queuing score accumulates the size of each arriving packet of a
+        flow, but scaled by the value of probNative (in the range 0 to 1) at
+        the instant the packet arrives. So a flow's score accumulates faster,
+        the higher the degree of queuing and the faster that the flow's
+        packets arrive when there is queuing. <xref
         target="qp_rationale_not_throughput"/> explains further why this score
         represents blame for queuing.</t>
 
@@ -288,8 +291,8 @@
         which the AQM is forwarding bytes of the flow that are ECN marked.
         However, rather than growing continually, the queuing score is also
         reduced (or 'aged') at a constant rate. This is because it is
-        legitimate for capacity-seeking flows to induce a continuous low level
-        of congestion in order to track available capacity. <xref
+        unavoidable for capacity-seeking flows to induce a continuous low
+        level of congestion as they track available capacity. <xref
         target="qp_rationale_aging"/> explains why this allowance can be set
         to the same constant for any scalable flow, whatever its bit rate.</t>
 
@@ -1349,12 +1352,12 @@ Arriving Packet's Flow
     </section>
 
     <section title="Acknowledgements">
-      <t>Thanks to Tom Henderson, Magnus Westerlund, David Black and Adrian
-      Farrel for their reviews of this document. The design of the QProt
-      algorithm and the settings of the parameters benefited from discussion
-      and critique from the participants of the cable industry working group
-      on Low Latency DOCSIS. CableLabs funded Bob Briscoe's initial work on
-      this document.</t>
+      <t>Thanks to Tom Henderson, Magnus Westerlund, David Black, Adrian
+      Farrel and Gorry Fairhurst for their reviews of this document. The
+      design of the QProt algorithm and the settings of the parameters
+      benefited from discussion and critique from the participants of the
+      cable industry working group on Low Latency DOCSIS. CableLabs funded Bob
+      Briscoe's initial work on this document.</t>
     </section>
   </middle>
 
@@ -1362,6 +1365,8 @@ Arriving Packet's Flow
 
   <back>
     <references title="Normative References">
+      <?rfc include="reference.RFC.3168" ?>
+
       <?rfc include="reference.RFC.8311" ?>
 
       <?rfc include='reference.I-D.ietf-tsvwg-ecn-l4s-id'?>
@@ -1428,8 +1433,6 @@ Arriving Packet's Flow
     </references>
 
     <references title="Informative References">
-      <?rfc include="reference.RFC.3168" ?>
-
       <?rfc include="reference.RFC.4303" ?>
 
       <?rfc include="reference.RFC.6789" ?>
