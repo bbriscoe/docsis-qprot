@@ -120,16 +120,15 @@
 
       <t>Low queuing delay depends on hosts sending their data smoothly,
       either at low rate or responding to explicit congestion notifications
-      (ECN <xref target="RFC8311"/>, <xref
-      target="I-D.ietf-tsvwg-ecn-l4s-id"/>). So low queuing latency is
-      something hosts create themselves, not something the network gives them.
-      This tends to ensure that self-interest alone does not drive flows to
-      mis-mark their packets for the low latency queue. However, traffic from
-      an application that does not behave in a non-queue-building way might
-      erroneously be classified into a low latency queue, whether accidentally
-      or maliciously. QProt protects other traffic in the low latency queue
-      from the harm due to excess queuing that would otherwise be caused by
-      such anomalous behaviour.</t>
+      (ECN <xref target="RFC8311"/>, <xref target="RFC9331"/>). So low queuing
+      latency is something hosts create themselves, not something the network
+      gives them. This tends to ensure that self-interest alone does not drive
+      flows to mis-mark their packets for the low latency queue. However,
+      traffic from an application that does not behave in a non-queue-building
+      way might erroneously be classified into a low latency queue, whether
+      accidentally or maliciously. QProt protects other traffic in the low
+      latency queue from the harm due to excess queuing that would otherwise
+      be caused by such anomalous behaviour.</t>
 
       <t>In normal scenarios without misclassified traffic, QProt is not
       expected to intervene at all in the classification or forwarding of
@@ -139,21 +138,20 @@
       technology is given in <xref target="LLD"/>. In each direction of a
       DOCSIS link (upstream and downstream), there are two queues: one for Low
       Latency (LL) and one for Classic traffic, in an arrangement similar to
-      the IETF's Coupled DualQ AQM <xref
-      target="I-D.ietf-tsvwg-aqm-dualq-coupled"/>. The two queues enable a
-      transition from 'Classic' to 'Scalable' congestion control so that low
-      latency can become the norm for any application, including ones seeking
-      both full throughput and low latency, not just low-rate applications
-      that have been more traditionally associated with a low latency service.
-      The Classic queue is only necessary for traffic such as traditional
-      (Reno/Cubic) TCP that needs about a round trip of buffering to fully
-      utilize the link, and therefore has no incentive to mismark itself as
-      low latency. The QProt function is located at the ingress to the Low
-      Latency queue. Therefore, in the upstream QProt is located on the cable
-      modem (CM), and in the downstream it is located on the cable CMTS (CM
-      Termination System). If an arriving packet triggers queue protection,
-      the QProt algorithm ejects the packet from the Low Latency queue and
-      reclassifies it into the Classic queue.</t>
+      the IETF's Coupled DualQ AQM <xref target="RFC9332"/>. The two queues
+      enable a transition from 'Classic' to 'Scalable' congestion control so
+      that low latency can become the norm for any application, including ones
+      seeking both full throughput and low latency, not just low-rate
+      applications that have been more traditionally associated with a low
+      latency service. The Classic queue is only necessary for traffic such as
+      traditional (Reno/Cubic) TCP that needs about a round trip of buffering
+      to fully utilize the link, and therefore has no incentive to mismark
+      itself as low latency. The QProt function is located at the ingress to
+      the Low Latency queue. Therefore, in the upstream QProt is located on
+      the cable modem (CM), and in the downstream it is located on the cable
+      CMTS (CM Termination System). If an arriving packet triggers queue
+      protection, the QProt algorithm ejects the packet from the Low Latency
+      queue and reclassifies it into the Classic queue.</t>
 
       <t>If QProt is used in settings other than DOCSIS links, it would be a
       simple matter to detect queue-building flows by using slightly different
@@ -169,9 +167,9 @@
       (the economic externality). Another important feature of the approach is
       that the metric used for the queuing score is based on the same variable
       that determines the level of ECN signalling seen by the sender <xref
-      target="RFC8311"/>, <xref target="I-D.ietf-tsvwg-ecn-l4s-id"/>. This
-      makes the internal queuing score visible externally as ECN markings.
-      This transparency is necessary to be able to objectively state (in <xref
+      target="RFC8311"/>, <xref target="RFC9331"/>. This makes the internal
+      queuing score visible externally as ECN markings. This transparency is
+      necessary to be able to objectively state (in <xref
       target="qp_nec_flow_behaviour"/>) how a flow can keep on the 'good' side
       of the algorithm.</t>
 
@@ -347,8 +345,7 @@
         </list></t>
 
       <t>Responsive low latency flows can use an L4S ECN codepoint <xref
-      target="I-D.ietf-tsvwg-ecn-l4s-id"/> to get classified into the low
-      latency queue.</t>
+      target="RFC9331"/> to get classified into the low latency queue.</t>
 
       <t>A sender can arrange for flows that are smooth but do not respond to
       ECN marking to be classified into the low latency queue by using the
@@ -358,12 +355,12 @@
 
       <t>As already explained in <xref target="qp_approach_mechanism"/>, the
       QProt algorithm is driven from the same variable that drives the ECN
-      marking probability in the low latency queue (see the Immediate Active
-      Queue Management Annex in <xref target="DOCSIS"/>). The algorithm that
-      calculates this internal variable is run on the arrival of every packet,
-      whether it is ECN-capable or not, so that it can be used by the QProt
-      algorithm. But the variable is only used to ECN-mark packets that are
-      ECN-capable.</t>
+      marking probability in the low latency or 'LL' queue (the 'Native' AQM
+      of the LL queue is defined in the Immediate Active Queue Management
+      Annex of <xref target="DOCSIS"/>). The algorithm that calculates this
+      internal variable is run on the arrival of every packet, whether it is
+      ECN-capable or not, so that it can be used by the QProt algorithm. But
+      the variable is only used to ECN-mark packets that are ECN-capable.</t>
 
       <t>Not only does this dual use of the variable improve processing
       efficiency, but it also makes the basis of the QProt algorithm visible
@@ -404,13 +401,13 @@
 // Input Parameters
 MAX_RATE;          // Configured maximum sustained rate [b/s]
 QPROTECT_ON;       // Queue Protection is enabled [Default: TRUE]
-CRITICALqL_us;     // L queue threshold delay [us] Default: MAXTH_us
+CRITICALqL_us;     // LL queue threshold delay [us] Default: MAXTH_us
 CRITICALqLSCORE_us;// The threshold queuing score [Default: 4000us]
 LG_AGING;          // The aging rate of the q'ing score [Default: 19]
                    //  as log base 2 of the congestion-rate [lg(B/s)]
 
 // Input Parameters for the calcProbNative() algorithm:
-MAXTH_us;          // Max IAQM marking threshold [Default: 1000us]
+MAXTH_us;          // Max LL AQM marking threshold [Default: 1000us]
 LG_RANGE;          // Log base 2 of the range of ramp [lg(ns)]
                    //  Default: 2^19 = 524288 ns (roughly 525 us)
 <CODE ENDS>
@@ -503,11 +500,11 @@ qdelayL(...)      // Returns current delay of the low latency Q [ns]
                 Security Payload (ESP) <xref target="RFC4303"/>.</t>
               </list></t>
           </list>The Microflow Classification section of the Queue Protection
-        Annex of the DOCSIS spec.&nbsp;<xref target="DOCSIS"/> defines various
+        Annex of the DOCSIS spec&nbsp;<xref target="DOCSIS"/> defines various
         strategies to find these headers by skipping extension headers or
-        encapsulations. If they cannot be found, the spec.&nbsp;defines
+        encapsulations. If they cannot be found, the spec defines
         various less-specific 3-tuples that would be used. The DOCSIS
-        spec.&nbsp;should be referred to for all these strategies, which will
+        spec should be referred to for all these strategies, which will
         not be repeated here.</t>
 
         <t>The array of bucket structures defined below is used by all the
@@ -538,8 +535,8 @@ struct bucket buckets[NBUCKETS+1];
             <t>fill_bucket(bucket_id, pkt_size, probNative); // Returns
             queuing score</t>
 
-            <t>calcProbNative(qdelay) // Returns probability of
-            ECN-marking</t>
+            <t>calcProbNative(qdelay) // Returns ECN-marking probability of
+            the native LL AQM</t>
           </list>The following function is primarily concerned with
         policy:<list style="empty">
             <t>qprotect(packet, ...); // Returns exit status to either forward
@@ -575,13 +572,13 @@ classifier(packet) {
         </figure>
 
         <section anchor="qp_qprotect" title="The qprotect() function">
-          <t>On each packet arrival, qprotect() measures the current queue
-          delay and derives the native marking probability from it. Then it
-          uses pick_bucket to find the bucket already holding the flow's
-          state, or to allocate a new bucket if the flow is new or its state
-          has expired (the most likely case). Then the queuing score is
-          updated by the fill_bucket() function. That completes the mechanism
-          aspects.</t>
+          <t>On each packet arrival at the LL queue, qprotect() measures the
+          current delay of the LL queue and derives the native LL marking
+          probability from it. Then it uses pick_bucket to find the bucket
+          already holding the flow's state, or to allocate a new bucket if the
+          flow is new or its state has expired (the most likely case). Then
+          the queuing score is updated by the fill_bucket() function. That
+          completes the mechanism aspects.</t>
 
           <t>The comments against the subsequent policy conditions and actions
           should be self-explanatory at a superficial level. The deeper
@@ -756,8 +753,8 @@ fill_bucket(bckt_id, pkt_sz, probNative) {
                  title="The calcProbNative() function">
           <t>To derive this queuing score, the QProt algorithm uses the linear
           ramp function calcProbNative() to normalize instantaneous queuing
-          delay into a probability in the range [0,1], which it assigns to
-          probNative.</t>
+          delay of the LL queue into a probability in the range [0,1], which
+          it assigns to probNative.</t>
 
           <figure>
             <artwork><![CDATA[<CODE BEGINS>
@@ -896,12 +893,12 @@ calcProbNative(qdelay){
       </section>
 
       <section anchor="qp_rationale_aging"
-               title="Rationale for Aging the Queuing Score">
+               title="Rationale for Constant Aging of the Queuing Score">
         <t>Even well-behaved flows will not always be able to respond fast
         enough to dynamic events. Also well-behaved flows, e.g., DCTCP <xref
         target="RFC8257"/>, TCP Prague <xref
-        target="I-D.briscoe-iccrg-prague-congestion-control"/>, BBRv2 <xref
-        target="BBRv2"/> or the L4S variant of SCReAM <xref target="SCReAM"/>
+        target="I-D.briscoe-iccrg-prague-congestion-control"/>, BBRv3 <xref
+        target="BBRv3"/> or the L4S variant of SCReAM <xref target="SCReAM"/>
         for real-time media <xref target="RFC8298"/>, can maintain a very
         shallow queue by continual careful probing for more while also
         continually subtracting a little from their rate (or congestion
@@ -918,7 +915,10 @@ calcProbNative(qdelay){
         doubles, a scalable flow induces half the congestion probability. Or
         if three scalable flows compete for the capacity, each flow will
         reduce to one third of the capacity they would use on their own and
-        increase the congestion level by 3x.</t>
+        increase the congestion level by 3x. Therefore, in steady state, a
+        scalable flow will induce the same constant amount of
+        "congested-bytes" per round trip, whatever the link capacity, and no
+        matter how many flows are sharing the capacity.</t>
 
         <t>This suggests that the QProt algorithm will not sanction a
         well-behaved scalable flow if it ages out the queuing score at a
@@ -1138,12 +1138,12 @@ Arriving Packet's Flow
         redirection of occasional packets can be due to unusually high
         transient load just at the specific bottleneck, not necessarily at any
         other bottleneck, and not necessarily due to bad flow behaviour.
-        Therefore, Section 5.4.1.2 of <xref
-        target="I-D.ietf-tsvwg-ecn-l4s-id"/> precludes a network node from
-        altering the end-to-end ECN field to exclude traffic from L4S
-        treatment. Instead a local-use identifier ought to be used (e.g.,
-        Diffserv Codepoint or VLAN tag), so that each operator can apply its
-        own policy, without prejudging what other operators ought to do.</t>
+        Therefore, Section 5.4.1.2 of <xref target="RFC9331"/> precludes a
+        network node from altering the end-to-end ECN field to exclude traffic
+        from L4S treatment. Instead a local-use identifier ought to be used
+        (e.g., Diffserv Codepoint or VLAN tag), so that each operator can
+        apply its own policy, without prejudging what other operators ought to
+        do.</t>
 
         <t>Although not supported in the DOCSIS specs, QProt could be extended
         to recognize that large numbers of redirected packets belong to the
@@ -1253,11 +1253,10 @@ Arriving Packet's Flow
       comply with the non-queue-building behaviour required to use a shared
       low latency queue, whether accidentally or maliciously.</t>
 
-      <t>Section 8.2 of the L4S architecture <xref
-      target="I-D.ietf-tsvwg-l4s-arch"/> introduces the problem of maintaining
-      low latency by either self-restraint or enforcement, and places DOCSIS
-      queue protection in context within a wider set of approaches to the
-      problem.</t>
+      <t>Section 8.2 of the L4S architecture <xref target="RFC9330"/>
+      introduces the problem of maintaining low latency by either
+      self-restraint or enforcement, and places DOCSIS queue protection in
+      context within a wider set of approaches to the problem.</t>
 
       <section anchor="qp_resource_exhaust"
                title="Resource Exhaustion Attacks">
@@ -1325,8 +1324,8 @@ Arriving Packet's Flow
 
         <section anchor="qp_proc_exhaust"
                  title="Exhausting Processing Resources">
-          <t>The processing time needed to apply the QProt algorithm to each L
-          packet is small and intended not to take all the time available
+          <t>The processing time needed to apply the QProt algorithm to each
+          LL packet is small and intended not to take all the time available
           between each of a run of fairly small packets. However, an attack
           could use minimum size packets launched from multiple input
           interfaces into a lower capacity output interface. Whether the QProt
@@ -1334,13 +1333,14 @@ Arriving Packet's Flow
           specific implementation.</t>
 
           <t>Addition of a capability to redirect persistently offending flows
-          from L to C would be the most effective way to reduce the per-packet
-          processing cost of the QProt algorithm, when under attack. As
-          already mentioned in <xref target="qp_flow-state_exhaust"/>, this
-          would also be an effective way to mitigate flow-state exhaustion
-          attacks. Further discussion of whole-flow redirection is outside the
-          scope of the present document, but briefly discussed at the end of
-          <xref target="qp_rationale_reclassify"/>.</t>
+          from LL to C would be the most effective way to reduce the
+          per-packet processing cost of the QProt algorithm, when under
+          attack. As already mentioned in <xref
+          target="qp_flow-state_exhaust"/>, this would also be an effective
+          way to mitigate flow-state exhaustion attacks. Further discussion of
+          whole-flow redirection is outside the scope of the present document,
+          but briefly discussed at the end of <xref
+          target="qp_rationale_reclassify"/>.</t>
         </section>
       </section>
     </section>
@@ -1369,7 +1369,7 @@ Arriving Packet's Flow
 
       <?rfc include="reference.RFC.8311" ?>
 
-      <?rfc include='reference.I-D.ietf-tsvwg-ecn-l4s-id'?>
+      <?rfc include='reference.RFC.9331'?>
 
       <?rfc include="reference.I-D.ietf-tsvwg-nqb" ?>
 
@@ -1443,9 +1443,9 @@ Arriving Packet's Flow
 
       <?rfc include="reference.RFC.8298" ?>
 
-      <?rfc include="reference.I-D.ietf-tsvwg-aqm-dualq-coupled" ?>
+      <?rfc include="reference.RFC.9332" ?>
 
-      <?rfc include='reference.I-D.ietf-tsvwg-l4s-arch'?>
+      <?rfc include='reference.RFC.9330'?>
 
       <?rfc include='reference.I-D.briscoe-iccrg-prague-congestion-control'?>
 
@@ -1499,10 +1499,10 @@ Arriving Packet's Flow
         <format target="https://arxiv.org/abs/1904.07605" type="PDF"/>
       </reference>
 
-      <reference anchor="BBRv2"
-                 target="https://github.com/google/bbr/blob/v2alpha/README.md">
+      <reference anchor="BBRv3"
+                 target="https://github.com/google/bbr/blob/v3/README.md">
         <front>
-          <title>TCP BBR v2 Alpha/Preview Release</title>
+          <title>TCP BBR v3 Release</title>
 
           <author fullname="Neal Cardwell" initials="N" surname="Cardwell">
             <organization/>
@@ -1514,7 +1514,7 @@ Arriving Packet's Flow
         <seriesInfo name="github repository;"
                     value="Linux congestion control module"/>
 
-        <format target="https://github.com/google/bbr/blob/v2alpha/README.md"
+        <format target="https://github.com/google/bbr/blob/v3/README.md"
                 type="Source code"/>
       </reference>
 
